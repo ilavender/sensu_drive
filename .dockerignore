@@ -1,0 +1,15 @@
+-
+*.pid
+*.pyc
+*.log
+local_settings.py
+.buildpath
+.project
+.pydevproject
+.git
+.gitignore
+.dockerignore
+scripts/
+static_collected/
+*.sh
+circus.ini
