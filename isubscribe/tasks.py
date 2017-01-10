@@ -343,8 +343,13 @@ def sensu_entity_list():
     for object in data:
         
         client = object['client']
-        check = object['check']['name']        
+        check = object['check']['name']
+        entity = client + ':' + check
+        
+        logger.debug("sensu_entity_list insert entity %s" % entity)
+                
         cache.set('entity_' + client + ':' + check, object['check'], timeout=settings.CACHE_ENTITY_TTL + 300)
+        cache.set('check_' + check, object['check'], timeout=settings.CACHE_CHECK_TTL + 300)
         
         if 'subscribers' in object['check']:
             subscribers.extend(object['check']['subscribers'])
