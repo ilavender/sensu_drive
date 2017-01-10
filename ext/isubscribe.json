@@ -1,4 +1,5 @@
-ndlers": {
+{
+  "handlers": {
     "isubscribe": {
       "command": "/usr/local/sbin/isubscribe.rb",
       "type": "pipe",
