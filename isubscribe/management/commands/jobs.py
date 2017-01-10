@@ -70,7 +70,6 @@ class Command(BaseCommand):
             
             schedule.every(settings.CACHE_ENTITY_TTL).seconds.do(job_update_entities)
             schedule.every(settings.CACHE_CLIENT_TTL).seconds.do(job_update_clients)
-            schedule.every(settings.CACHE_CHECK_TTL).seconds.do(job_update_checks)
             schedule.every(settings.CACHE_TRENDS_TTL).seconds.do(job_update_trends)
             
             
