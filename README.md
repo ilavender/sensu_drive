@@ -4,14 +4,11 @@ Sensu Drive
 ===========
 
 Sensu Drive offers easy way to subscribe for sensu events with integration to your team's slack.
-<br>
-<br>
+
 along with the continuous delivery methodologies, while the demand of continuous delivery of monitoring in parallel to product delivery is covered by infrastructure as code such as puppet or chef configuring Sensu monitor.
 "Sensu Drive" was conceptualized to allow developers to subscribe and unsubscribe to notifications for monitors they or others deployed and to allow Devops/NOC team to recieve notifications for checks that are defining services that they want to wake up at night for.
-<br>
+
 the concept suggest that Sensu will decide which event to alert for and "Sensu Drive" will decide who and when to notify.
-<br>
-<br>
  
 - slack integration
   - create account for each user in slack team if not already exist
@@ -65,35 +62,34 @@ the concept suggest that Sensu will decide which event to alert for and "Sensu D
   - manage "DnD" user schedule occurrences
   - "On Duty" notifications ignore "DnD"
 
-<br>
-<br>
+
 
 # Requirements
 
 python3
-<br>
+
 postgresql-9.5
-<br>
+
 redis-server
-<br>
+
 postgresql-server-dev-9.5 
-<br>
+
 python-dev
-<br>
+
 python3-dev
-<br>
+
 python3-cryptography
-<br>
-<br>
+
+
 pip install -r requirements.txt
-<br>
-<br>
+
+
 Slack team account (free) and token
-<br>
+
 you can use your test token but for real production deployment having a dedicated bot user is recommended.
-<br>
+
 https://api.slack.com/docs/oauth-test-tokens
-<br>
+
 https://api.slack.com/bot-users
 
 
@@ -256,7 +252,8 @@ https://api.slack.com/bot-users
 	  },
 	  "isubscribe": {
 	    "server_uri": "http://127.0.0.1:8080/isubscribe/api/alert",
-	    "api_token": "secret for isubscribe sensu handler see local_settings"
+	    "api_token": "secret for isubscribe sensu handler see local_settings",
+	    "handle_flapping": true
 	  }
 	}
 	```

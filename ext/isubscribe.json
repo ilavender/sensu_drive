@@ -1,5 +1,4 @@
-{
-  "handlers": {
+ndlers": {
     "isubscribe": {
       "command": "/usr/local/sbin/isubscribe.rb",
       "type": "pipe",
@@ -16,6 +15,7 @@
   },
   "isubscribe": {
     "server_uri": "http://127.0.0.1:8080/isubscribe/api/alert",
-    "api_token": "scoe9r867svoen9r867pxser60987bsp05798n"
+    "api_token": "secret for isubscribe sensu handler see local_settings",
+    "handle_flapping": true
   }
 }
