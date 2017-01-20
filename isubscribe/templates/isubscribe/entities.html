@@ -98,6 +98,10 @@ $(function() {
 						});
 						
 						request.done(function(msg) {
+							if (msg.not_authenticated) {
+						        window.location.replace(msg.login_url);
+						        return;
+						    }
 						  	var status = warn_img.attr("data-status");
 					    	if (status == 0){
 					    		warn_img.attr("data-status", "1");
@@ -134,6 +138,10 @@ $(function() {
 						});
 						
 						request.done(function(msg) {
+							if (msg.not_authenticated) {
+						        window.location.replace(msg.login_url);
+						        return;
+						    }
 						  	var status = crit_img.attr("data-status");
 					    	if (status == 0){
 					    		crit_img.attr("data-status", "1");
@@ -193,6 +201,10 @@ $(function() {
 				});
 				
 				request.done(function(msg) {
+					if (msg.not_authenticated) {
+				        window.location.replace(msg.login_url);
+				        return;
+				    }
 					if (msg.result == 'okay'){						
 						silent = msg.silent;
 						if (silent){
@@ -352,6 +364,10 @@ $(function() {
 				});
 				
 				request.done(function(msg) {
+					if (msg.not_authenticated) {
+				        window.location.replace(msg.login_url);
+				        return;
+				    }
 					if (msg.result != 'okay'){						
 						alert( "ERROR: " + msg.result );
 				  	}						  	
@@ -409,6 +425,10 @@ $(function() {
 		});
 		
 		request.done(function(data) {
+			if (data.not_authenticated) {
+		        window.location.replace(data.login_url);
+		        return;
+		    }
 			if (data.length == 0) {
 				$('#modalBody').append('<li>no history data</li>');
 				return;
@@ -468,6 +488,10 @@ $(function() {
 		});
 		
 		request.done(function(data) {
+			if (data.not_authenticated) {
+		        window.location.replace(data.login_url);
+		        return;
+		    }
 			if (data.length == 0) {
 				$('#modalBody').append('<li>no notifications history data</li>');
 				return;
@@ -528,6 +552,10 @@ $(function() {
 		});
 		
 		request.done(function(data) {
+			if (data.not_authenticated) {
+		        window.location.replace(data.login_url);
+		        return;
+		    }
 			if (data == null) {
 				$('#modalBody').append('<li>no config data</li>');
 				return;
@@ -574,6 +602,10 @@ $(function() {
 		});
 		
 		request.done(function(data) {
+			if (data.not_authenticated) {
+		        window.location.replace(data.login_url);
+		        return;
+		    }
 			if (data == null) {
 				$('#modalBody').append('<li>no config data</li>');
 				return;

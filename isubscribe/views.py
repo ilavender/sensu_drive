@@ -10,11 +10,13 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.password_validation import validate_password, ValidationError
 
 from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse
 
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
+from django.utils.http import urlencode
 
-
+from functools import wraps
 import urllib3, base64, json, re, datetime, random, string
 from distutils.command.check import check
 from collections import OrderedDict
@@ -38,6 +40,18 @@ import codecs
 redis_pool = redis.ConnectionPool(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB, max_connections=settings.REDIS_POOL_MAX, password=settings.REDIS_PASSWORD)
 r = redis.Redis(connection_pool=redis_pool)
 http = urllib3.PoolManager(maxsize=10)
+
+
+def ajax_login_required(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_authenticated():
+            return view_func(request, *args, **kwargs)
+        url = reverse('login')
+        next={'next': request.META.get('HTTP_REFERER')}
+        return HttpResponse(json.dumps({ 'not_authenticated': True, 'login_url': u'%s?%s' % (url, urlencode(next)) }), 'application/json')
+    return wrapper
+
 
 
 @login_required(login_url=reverse_lazy('login'))
@@ -112,7 +126,8 @@ def entities(request):
 
 
 
-@login_required(login_url=reverse_lazy('login'))
+#@login_required(login_url=reverse_lazy('login'))
+@ajax_login_required
 def subscribe_toggle(request):
 
     mimetype = 'application/json'
@@ -149,7 +164,8 @@ def subscribe_toggle(request):
 
 
 
-@login_required(login_url=reverse_lazy('login'))
+#@login_required(login_url=reverse_lazy('login'))
+@ajax_login_required
 def silent_toggle(request):
 
     mimetype = 'application/json'
@@ -312,7 +328,8 @@ def subscriptions(request):
 
 
 
-@login_required(login_url=reverse_lazy('login'))
+#@login_required(login_url=reverse_lazy('login'))
+@ajax_login_required
 def ack(request):
 
     mimetype = 'application/json'
@@ -348,7 +365,8 @@ def ack(request):
 
 
 
-@login_required(login_url=reverse_lazy('login'))
+#@login_required(login_url=reverse_lazy('login'))
+@ajax_login_required
 def resolve(request):
 
     mimetype = 'application/json'
@@ -369,7 +387,8 @@ def resolve(request):
 
 
 
-@login_required(login_url=reverse_lazy('login'))
+#@login_required(login_url=reverse_lazy('login'))
+@ajax_login_required
 def rmClient(request):
 
     mimetype = 'application/json'
@@ -388,7 +407,8 @@ def rmClient(request):
     return HttpResponse(json.dumps(data), mimetype)
 
 
-@login_required(login_url=reverse_lazy('login'))
+#@login_required(login_url=reverse_lazy('login'))
+@ajax_login_required
 def rmResult(request):
 
     mimetype = 'application/json'
@@ -734,7 +754,8 @@ def onduty(request):
 
 
 
-@login_required(login_url=reverse_lazy('login'))
+#@login_required(login_url=reverse_lazy('login'))
+@ajax_login_required
 def entity_history(request):            
         
     data = []
@@ -752,7 +773,8 @@ def entity_history(request):
 
 
 
-@login_required(login_url=reverse_lazy('login'))
+#@login_required(login_url=reverse_lazy('login'))
+@ajax_login_required
 def entity_notify_history(request):            
         
     data = []
@@ -771,7 +793,8 @@ def entity_notify_history(request):
 
 
 
-@login_required(login_url=reverse_lazy('login'))
+#@login_required(login_url=reverse_lazy('login'))
+@ajax_login_required
 def check_config(request):        
         
     mimetype = 'application/json'   
@@ -787,7 +810,8 @@ def check_config(request):
 
 
 
-@login_required(login_url=reverse_lazy('login'))
+#@login_required(login_url=reverse_lazy('login'))
+@ajax_login_required
 def check_result(request):        
     
     mimetype = 'application/json'   
@@ -962,7 +986,8 @@ def test(request):
     return HttpResponse(json.dumps(data), mimetype)
 
 
-@login_required(login_url=reverse_lazy('login'))
+#@login_required(login_url=reverse_lazy('login'))
+@ajax_login_required
 def trends(request):
     
     mimetype = 'application/json'

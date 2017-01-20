@@ -13,6 +13,10 @@ function rmClient(client, tr_id){
         type: "POST",
         data : postData,
         success:function(data, textStatus, jqXHR){
+        	if (data.not_authenticated) {
+		        window.location.replace(data.login_url);
+		        return;
+		    }
         	if (data.result == 'okay'){
 		  		$('#' + tr_id).remove();						  		
 		  	} else {

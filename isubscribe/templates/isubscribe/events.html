@@ -130,6 +130,10 @@ $(function() {
 							});
 							
 							request.done(function(msg) {
+								if (msg.not_authenticated) {
+							        window.location.replace(msg.login_url);
+							        return;
+							    }
 								$(this).remove();				  	
 							});
 							
@@ -324,6 +328,12 @@ $(function() {
 						});
 						
 						request.done(function(data) {
+						
+							if (data.not_authenticated) {
+						        window.location.replace(data.login_url);
+						        return;
+						    }
+						    
 							if (data == null) {
 								$('#modalBody').append('<li>no config data</li>');
 								return;
@@ -375,7 +385,11 @@ $(function() {
 						  	dataType: "json"
 						});
 						
-						request.done(function(data) {	
+						request.done(function(data) {
+							if (data.not_authenticated) {
+						        window.location.replace(data.login_url);
+						        return;
+						    }
 							if (data == null) {
 								$('#modalBody').append('<li>no config data</li>');
 								return;
@@ -410,6 +424,10 @@ $(function() {
 						});
 						
 						request.done(function(data) {
+							if (data.not_authenticated) {
+						        window.location.replace(data.login_url);
+						        return;
+						    }
 							if (data.length < 2) {
 								$('#modalBody').append('<li>no history data</li>');
 								return;
@@ -456,7 +474,11 @@ $(function() {
 						  	dataType: "json"
 						});
 						
-						request.done(function(data) {
+						request.done(function(data) {						
+							if (data.not_authenticated) {
+						        window.location.replace(data.login_url);
+						        return;
+						    }
 							if (data.length == 0) {
 								$('#modalBody').append('<li>no notifications history data</li>');
 								return;
@@ -504,6 +526,10 @@ $(function() {
 						});
 						
 						request.done(function(msg) {
+							if (msg.not_authenticated) {
+						        window.location.replace(msg.login_url);
+						        return;
+						    }
 							if (msg.result == 'okay'){
 						  		$('#msbBoxModal').modal('toggle');						  		
 						  	}
@@ -545,6 +571,12 @@ $(function() {
 						});
 						
 						request.done(function(msg) {
+							if (msg.not_authenticated) {
+						        window.location.replace(msg.login_url);
+						        return;
+						    }
+						
+						
 							if (msg.result == 'okay' && msg.silent){
 						  		$('#modalButtonSilent').addClass( 'modal-critical' );						  		
 						  	} else if (msg.result == 'okay'){
@@ -604,6 +636,11 @@ $(function() {
 					});
 					
 					request.done(function(data) {
+						if (data.not_authenticated) {
+					        window.location.replace(data.login_url);
+					        return;
+					    }
+					
 						$('#msg_modalTitle').html('Trends');
 						
 						if (data == null) {
@@ -657,8 +694,13 @@ $(function() {
 					  	return false;
 					});
 					
-					request.fail(function(jqXHR, textStatus) {
-					  	alert( "Request failed: " + textStatus );
+					request.fail(function(jqXHR, textStatus, errorThrown) {
+						if (request.getResponseHeader('REQUIRES_AUTH') === '1') {
+					    	window.location = jqXHR.location;
+					    }
+						else {	                   	
+					  		alert( "Request failed: " + errorThrown + " " + jqXHR.status);
+					  	}
 					});
 			         
 			        $('#msgBoxModal').modal();

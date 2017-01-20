@@ -59,6 +59,10 @@
 							});
 							
 							request.done(function(msg) {
+								if (msg.not_authenticated) {
+							        window.location.replace(msg.login_url);
+							        return;
+							    }
 								$(this).remove();				  	
 							});
 							
