@@ -269,7 +269,7 @@ def sensu_client_list():
     
     subscriptions = []
     
-    #[ r.delete(subscription) for subscription in r.keys("subscription_*") ]
+    [ r.delete(subscription) for subscription in r.keys("subscription_*") ]
     #[ cache.delete(client) for client in cache.keys("client_*") ]
     
     for object in data:
