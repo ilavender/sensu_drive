@@ -93,9 +93,14 @@ def trends_build():
         name = word.decode('utf-8')
         entity = re.sub(r'^history_entity_', '', name)
         
+        if 'entity_' + entity not in cache.keys("entity_*"):
+            continue
+                
+        
         try:
             i = 0
             for history_data in r.lrange(name, 0, -1):
+                                
                 obj = pickle.loads(history_data)
                 
                 if 'history' not in obj or 'timestamp' not in obj:
