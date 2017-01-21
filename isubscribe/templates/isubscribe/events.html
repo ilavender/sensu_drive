@@ -210,6 +210,7 @@ $(function() {
 		content_entry = '<li>' + ts_localize(timestamp) + ' ' + status_img + ' ' + content + '</li>'
 		$('#modalTitle').html(entity);
         $('#modalBody').html(content_entry);
+        
         $('#modalButtonCheck').attr('data-entity', entity);
         $('#modalButtonSilent').attr('data-entity', entity);        
         $('#modalButtonResolve').attr('data-entity', entity);
@@ -219,6 +220,7 @@ $(function() {
         $('#modalButtonCheckResult').attr('data-entity', entity);
         $('#modalButtonSilent').attr('data-status', status);
         $('#modalButtonSilent').attr('data-silent', silent);
+        
         $('#modalHeader').switchClass('modal-header modal-warning modal-critical modal-unknown', 'modal-header', queue=false);
         if (silent){
         	$('#modalButtonSilent').addClass( 'modal-critical' );
@@ -307,12 +309,13 @@ $(function() {
 <div id="msbBoxModal" class="modal fade" tabindex='-1'>
     <div class="modal-dialog">
         <div class="modal-content">
+        
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span> <span class="sr-only">close</span></button>
                 <h4 id="modalTitle" class="modal-title"></h4>
-            </div>
-            <div id="modalBody" class="modal-body"></div>
-            <div class="modal-footer">
+            </div>                                                                       
+
+            <div id="modalSidebar" class="modal-sidebar">
             
             	<button type="button" id="modalButtonCheckResult" class="btn btn-default" data-entity>Result</button>
             	
@@ -667,9 +670,14 @@ $(function() {
 					});		
 				</script>  
 				
-				<!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
-				
             </div>
+            
+            <div id="modalBody" class="modal-body"></div>
+            
+            <div class="modal-footer">
+            	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+            
         </div>
     </div>
 </div>

@@ -672,27 +672,35 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
 }
 
 
-
-.modal-body {
-    background-color: #F5F4EF;
-    color: #000305;
+@media all and (min-width: 600px) {
+  	.modal-content { min-width: 598px; }
 }
+
+@media all and (min-width: 800px) {
+	.modal-content { min-width: 740px; }
+}
+
 
 .modal-content {
     border-radius: 6px;
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
     background-color: transparent;
+    
+    display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;  
+	  
+	-webkit-flex-flow: row wrap;
+	flex-flow: row wrap;
+	flex: 1 100%;
 }
 
-.modal-footer {
-	background-color: #F5F4EF;
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
-    -webkit-border-bottom-left-radius: 6px;
-    -webkit-border-bottom-right-radius: 6px;
-    -moz-border-radius-bottomleft: 6px;
-    -moz-border-radius-bottomright: 6px;
+
+.modal-content > * {
+  flex: 1 100%;
 }
 
 .modal-header {
@@ -703,7 +711,7 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
     -webkit-border-top-left-radius: 6px;
     -webkit-border-top-right-radius: 6px;
     -moz-border-radius-topleft: 6px;
-    -moz-border-radius-topright: 6px;
+    -moz-border-radius-topright: 6px;    
 }
 
 .modal-header .close {
@@ -716,6 +724,34 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
     -moz-border-radius: 3px; 
 }
 
+.modal-sidebar {
+	background-color: #F5F4EF;
+	flex: 1;
+	max-width: 120px;
+}
+
+.modal-body {
+    background-color: #F5F4EF;
+    color: #000305;
+    overflow-y:auto;
+    max-height:90%;
+}
+
+.modal-footer {
+	background-color: #F5F4EF;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    -webkit-border-bottom-left-radius: 6px;
+    -webkit-border-bottom-right-radius: 6px;
+    -moz-border-radius-bottomleft: 6px;
+    -moz-border-radius-bottomright: 6px;
+}
+
+
+.modal-body    { flex: 3 0px; }
+.modal-sidebar { order: 1; } 
+.modal-body    { order: 2; }
+.modal-footer  { order: 3; }
 
 .modal-critical {
 	color: #fff;
