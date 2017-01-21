@@ -278,6 +278,7 @@ def events(request):
         except:
             raise
         
+       
     profile_form = ContactForm(instance=Contact.objects.get(user=request.user.id), user=request.user)
     
     
@@ -428,11 +429,12 @@ def rmResult(request):
 
 
 
-@login_required(login_url=reverse_lazy('login'))
+#@login_required(login_url=reverse_lazy('login'))
+@ajax_login_required
 def redoCheck(request):
 
     mimetype = 'application/json'   
-    data = {}
+    data = {'result': None}
     
     if request.method == 'POST' and 'entity' in request.POST and request.POST['entity'] != '':        
         
@@ -447,7 +449,7 @@ def redoCheck(request):
         try:
             
             client_name, check_name = request.POST['entity'].split(':')
-            post_params = {"check": check_name}
+            post_params = {'check': check_name, 'subscribers': ['client:' + client_name]}
             
             request = http.request('POST', API_URL, body=json.dumps(post_params), headers=headers)   
             response = request.status

@@ -210,6 +210,7 @@ $(function() {
 		content_entry = '<li>' + ts_localize(timestamp) + ' ' + status_img + ' ' + content + '</li>'
 		$('#modalTitle').html(entity);
         $('#modalBody').html(content_entry);
+        $('#modalButtonCheck').attr('data-entity', entity);
         $('#modalButtonSilent').attr('data-entity', entity);        
         $('#modalButtonResolve').attr('data-entity', entity);
         $('#modalButtonHistory').attr('data-entity', entity);        
@@ -590,9 +591,41 @@ $(function() {
 						  	alert( "Request failed: " + textStatus );
 						});
 					});		
+				</script>
+				
+				
+				<button type="button" id="modalButtonCheck" class="btn btn-default" data-entity data-status data-silent data-ack>Check Now</button>                
+                
+                <script>	
+					$( "#modalButtonCheck" ).click(function(e) {
+						e.preventDefault();
+						entity = $(this).attr('data-entity');																
+						
+						var request = $.ajax({
+							url: "{% url "redoCheck" %}",
+						  	type: "POST",
+						  	data: {entity : entity, csrfmiddlewaretoken: '{{ csrf_token }}'},
+						  	dataType: "json"
+						});
+						
+						request.done(function(data) {							
+							if (data.not_authenticated) {
+						        window.location.replace(data.login_url);
+						        return;
+						    }
+
+							$('#modalBody').text('request: ' + data.result);
+													
+						  	return false;
+						});
+						
+						request.fail(function(jqXHR, textStatus) {
+						  	alert( "Request failed: " + textStatus );
+						});
+					});		
 				</script>  
 				
-				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
 				
             </div>
         </div>
@@ -690,23 +723,17 @@ $(function() {
 							trend_entry = '<div><button data-toggle="collapse" data-target="#trend_data_details' + i + '">' + status_img + ' ' + data[i].entity + '</button><div id="trend_data_details' + i + '" class="collapse">' + trend_data + '</div></div>'
 							$('#msg_modalBody').append(trend_entry);
 						}
-												
+							
+						$('#msgBoxModal').modal();
+				        $('#msgBoxModal').draggable({
+				            handle: ".modal-header"
+				        });					
 					  	return false;
 					});
 					
-					request.fail(function(jqXHR, textStatus, errorThrown) {
-						if (request.getResponseHeader('REQUIRES_AUTH') === '1') {
-					    	window.location = jqXHR.location;
-					    }
-						else {	                   	
-					  		alert( "Request failed: " + errorThrown + " " + jqXHR.status);
-					  	}
-					});
-			         
-			        $('#msgBoxModal').modal();
-			        $('#msgBoxModal').draggable({
-			            handle: ".modal-header"
-			        });
+					request.fail(function(jqXHR, textStatus, errorThrown) {	                   	
+					  	alert( "Request failed: " + errorThrown);					  
+					});			         			        
 			        
 			        return;
 			    });

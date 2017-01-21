@@ -306,7 +306,7 @@ $(function() {
         );
         
         
-        /*
+        //redoCheck
         redo_link = $('<a>',{
         	id: 'redo_link_' + entity_id,
 		    href: '',
@@ -322,7 +322,11 @@ $(function() {
 				});
 				
 				request.done(function(msg) {
-					if (msg.result != 'okay'){						
+					if (msg.not_authenticated) {
+				        window.location.replace(msg.login_url);
+				        return;
+				    }
+					if (msg.result){						
 						alert( msg.result );
 				  	}						  	
 				});
@@ -342,7 +346,7 @@ $(function() {
             $("<td class=\"entity-ack\"></td>").html(redo_link).append(comment)
         );
         
-        */
+        //redoCheck
         
         delete_result_link = $('<a>',{
         	id: 'delete_result_link_' + entity_id,
