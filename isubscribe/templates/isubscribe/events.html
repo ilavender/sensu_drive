@@ -594,7 +594,7 @@ $(function() {
 				</script>
 				
 				
-				<button type="button" id="modalButtonCheck" class="btn btn-default" data-entity data-status data-silent data-ack>Check Now</button>                
+				<button type="button" id="modalButtonCheck" class="btn btn-default" data-entity data-status data-silent data-ack>Check</button>                
                 
                 <script>	
 					$( "#modalButtonCheck" ).click(function(e) {
@@ -614,8 +614,50 @@ $(function() {
 						        return;
 						    }
 
-							$('#modalBody').text('request: ' + data.result);
-													
+							$('#modalBody').append('<li>request: ' + data.result + '</li>');
+							
+							//TEST
+							var request = $.ajax({
+								url: "{% url "check_result" %}",
+							  	type: "POST",
+							  	data: {entity : entity, csrfmiddlewaretoken: '{{ csrf_token }}'},
+							  	dataType: "json"
+							});
+							
+							request.done(function(data) {
+							
+								if (data.not_authenticated) {
+							        window.location.replace(data.login_url);
+							        return;
+							    }
+							    
+								if (data == null) {
+									$('#modalBody').append('<li>no config data</li>');
+									return;
+								}				
+				
+								if (data.check.status == 0){
+									status_img = '<img src="{% static "isubscribe/images/okay-enabled-flag.png" %}">';
+									status_description = 'Okay'; 
+								} else if (data.check.status == 1){
+									status_img = '<img src="{% static "isubscribe/images/warning-enabled-flag.jpg" %}">';
+									status_description = 'Warning'; 
+								} else if (data.check.status == 2){
+									status_img = '<img src="{% static "isubscribe/images/critical-enabled-flag.jpg" %}">';
+									status_description = 'Critical'; 
+								} else {
+									status_img = '<img src="{% static "isubscribe/images/unknown.gif" %}">';
+									status_description = 'Unknown';
+								}							
+					 
+								history_entry = '<li>' + ts_localize(data.check.executed) + ' ' + status_img + ' ' + data.check.output + '</li>';
+
+								$('#modalBody').append(history_entry); 
+					 
+										
+							  	return false;
+							});
+							//TEST					
 						  	return false;
 						});
 						
