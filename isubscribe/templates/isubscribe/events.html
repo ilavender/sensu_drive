@@ -318,6 +318,13 @@ $(function() {
             <div id="modalSidebar" class="modal-sidebar">
             
             	<button type="button" id="modalButtonCheckResult" class="btn btn-default" data-entity>Result</button>
+            	<button type="button" id="modalButtonCheckConfig" class="btn btn-default" data-entity>Config</button>
+            	<button type="button" id="modalButtonHistory" class="btn btn-default" data-entity>History</button>
+				<button type="button" id="modalButtonNotifications" class="btn btn-default" data-entity>Notifications</button>
+            	<button type="button" id="modalButtonResolve" class="btn btn-default" data-entity>Resolve</button>
+            	<button type="button" id="modalButtonSilent" class="btn btn-default" data-entity data-status data-silent data-ack>Silent</button>                
+				<button type="button" id="modalButtonCheck" class="btn btn-default" data-entity data-status data-silent data-ack>Check</button>
+            
             	
             	<script>	
 					$( "#modalButtonCheckResult" ).click(function(e) {
@@ -375,7 +382,7 @@ $(function() {
 				</script>
             
             
-            	<button type="button" id="modalButtonCheckConfig" class="btn btn-default" data-entity>Config</button>
+            	<!-- modalButtonCheckConfig ajax -->
             	
             	<script>	
 					$( "#modalButtonCheckConfig" ).click(function(e) {
@@ -413,7 +420,7 @@ $(function() {
 					});		
 				</script>
             
-            	<button type="button" id="modalButtonHistory" class="btn btn-default" data-entity>History</button>
+            	<!-- modalButtonHistory ajax -->
             	
             	<script>	
 					$( "#modalButtonHistory" ).click(function(e) {
@@ -464,7 +471,7 @@ $(function() {
 					});		
 				</script>
 				
-				<button type="button" id="modalButtonNotifications" class="btn btn-default" data-entity>Notifications</button>
+				<!-- modalButtonNotifications ajax -->
             	
             	<script>	
 					$( "#modalButtonNotifications" ).click(function(e) {
@@ -515,7 +522,7 @@ $(function() {
 					});		
 				</script>
             
-            	<button type="button" id="modalButtonResolve" class="btn btn-default" data-entity>Resolve</button>
+            	<!-- modalButtonResolve ajax -->
             	
             	<script>	
 					$( "#modalButtonResolve" ).click(function(e) {
@@ -546,7 +553,7 @@ $(function() {
 					});		
 				</script>
             
-            	<button type="button" id="modalButtonSilent" class="btn btn-default" data-entity data-status data-silent data-ack>Silent</button>                
+            	<!-- modalButtonSilent ajax -->                
                 
                 <script>	
 					$( "#modalButtonSilent" ).click(function(e) {
@@ -596,8 +603,8 @@ $(function() {
 					});		
 				</script>
 				
-				
-				<button type="button" id="modalButtonCheck" class="btn btn-default" data-entity data-status data-silent data-ack>Check</button>                
+				 
+				<!-- modalButtonCheck ajax -->               
                 
                 <script>	
 					$( "#modalButtonCheck" ).click(function(e) {
@@ -617,50 +624,59 @@ $(function() {
 						        return;
 						    }
 
-							$('#modalBody').append('<li>request: ' + data.result + '</li>');
+							$('#modalBody').append('<li>check request: ' + data.result + '</li>');
 							
-							//TEST
-							var request = $.ajax({
-								url: "{% url "check_result" %}",
-							  	type: "POST",
-							  	data: {entity : entity, csrfmiddlewaretoken: '{{ csrf_token }}'},
-							  	dataType: "json"
-							});
+							if (data.result != 'accepted'){
+								return false;
+							}
 							
-							request.done(function(data) {
+							// try to refresh result
+							var refresh_result = function(){
+								var request = $.ajax({
+									url: "{% url "check_result" %}",
+								  	type: "POST",
+								  	data: {entity : entity, csrfmiddlewaretoken: '{{ csrf_token }}'},
+								  	dataType: "json"
+								});
+								
+								request.done(function(data) {
+								
+									if (data.not_authenticated) {
+								        window.location.replace(data.login_url);
+								        return;
+								    }
+								    
+									if (data == null) {
+										$('#modalBody').append('<li>no config data</li>');
+										return;
+									}				
+					
+									if (data.check.status == 0){
+										status_img = '<img src="{% static "isubscribe/images/okay-enabled-flag.png" %}">';
+										status_description = 'Okay'; 
+									} else if (data.check.status == 1){
+										status_img = '<img src="{% static "isubscribe/images/warning-enabled-flag.jpg" %}">';
+										status_description = 'Warning'; 
+									} else if (data.check.status == 2){
+										status_img = '<img src="{% static "isubscribe/images/critical-enabled-flag.jpg" %}">';
+										status_description = 'Critical'; 
+									} else {
+										status_img = '<img src="{% static "isubscribe/images/unknown.gif" %}">';
+										status_description = 'Unknown';
+									}							
+						 
+									history_entry = '<li>' + ts_localize(data.check.executed) + ' ' + status_img + ' ' + data.check.output + '</li>';
+	
+									$('#modalBody').append(history_entry); 
+						 
+											
+								  	return false;
+								});
+							};
 							
-								if (data.not_authenticated) {
-							        window.location.replace(data.login_url);
-							        return;
-							    }
-							    
-								if (data == null) {
-									$('#modalBody').append('<li>no config data</li>');
-									return;
-								}				
-				
-								if (data.check.status == 0){
-									status_img = '<img src="{% static "isubscribe/images/okay-enabled-flag.png" %}">';
-									status_description = 'Okay'; 
-								} else if (data.check.status == 1){
-									status_img = '<img src="{% static "isubscribe/images/warning-enabled-flag.jpg" %}">';
-									status_description = 'Warning'; 
-								} else if (data.check.status == 2){
-									status_img = '<img src="{% static "isubscribe/images/critical-enabled-flag.jpg" %}">';
-									status_description = 'Critical'; 
-								} else {
-									status_img = '<img src="{% static "isubscribe/images/unknown.gif" %}">';
-									status_description = 'Unknown';
-								}							
-					 
-								history_entry = '<li>' + ts_localize(data.check.executed) + ' ' + status_img + ' ' + data.check.output + '</li>';
-
-								$('#modalBody').append(history_entry); 
-					 
-										
-							  	return false;
-							});
-							//TEST					
+							setTimeout(refresh_result, 2000);
+							$('#modalBody').append('<li>please wait 2 seconds for fresh result.</li>');
+											
 						  	return false;
 						});
 						
