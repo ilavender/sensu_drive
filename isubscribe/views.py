@@ -805,7 +805,8 @@ def check_config(request):
     if request.method == 'POST' and 'entity' in request.POST and request.POST['entity'] != '':        
         client_name, check_name = request.POST['entity'].split(':')
         #check_name = 'check_gw_tomcat_errors_1h'
-        data = cache.get('check_' + check_name)
+        #data = cache.get('check_' + check_name)
+        data = cache.get('check_' + request.POST['entity'])
     
     
     return HttpResponse(json.dumps(data), mimetype)
