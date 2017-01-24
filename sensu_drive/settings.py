@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
-import os
+import os, re
 from django.conf.global_settings import LOGIN_URL
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -134,6 +134,13 @@ CHANNEL_LAYERS = {
             #"hosts": ["redis://:password@127.0.0.1:6379/7"],
             "hosts": ["redis://127.0.0.1:6379/7"],
             "symmetric_encryption_keys": [SECRET_KEY],
+            'expiry': 300,
+            'channel_capacity' : {
+                "http.request": 200,
+                "http.response!*": 200,
+                re.compile(r"^websocket.send\!.+"): 200,
+                re.compile(r"^background.+"): 1000,
+            },
         },
         "ROUTING": "sensu_drive.routing.channel_routing",
     },
@@ -217,7 +224,7 @@ API_TOKEN = 'blabla_secret_key'
 CACHE_ENTITY_TTL = 1800
 CACHE_CLIENT_TTL = 7200
 CACHE_CHECK_TTL = 7200
-CACHE_TRENDS_TTL = 3600
+CACHE_TRENDS_TTL = 21600
 
 
 REDIS_HOST = '127.0.0.1'
@@ -253,6 +260,61 @@ THROTTLING_TWILIO_USER_ENTITY_TTL = 3600
 
 
 ARBITRARY_EVENTS_MIN_OCCURRENCES = 2
+
+
+########################################
+
+if os.environ.get('SENSU_DRIVE_DB_NAME'):
+    DATABASES['default']['NAME'] = os.environ['SENSU_DRIVE_DB_NAME']
+    
+if os.environ.get('SENSU_DRIVE_DB_USER'):
+    DATABASES['default']['USER'] = os.environ['SENSU_DRIVE_DB_USER']
+    
+if os.environ.get('SENSU_DRIVE_DB_PASSWORD'):
+    DATABASES['default']['PASSWORD'] = os.environ['SENSU_DRIVE_DB_PASSWORD']
+
+if os.environ.get('SENSU_DRIVE_DB_HOST'):
+    DATABASES['default']['HOST'] = os.environ['SENSU_DRIVE_DB_HOST']
+    
+if os.environ.get('SENSU_DRIVE_DB_PORT'):
+    DATABASES['default']['PORT'] = os.environ['SENSU_DRIVE_DB_PORT']
+    
+if os.environ.get('SENSU_DRIVE_CACHE_LOCATION'):
+    CACHES['default']['LOCATION'] = os.environ['SENSU_DRIVE_CACHE_LOCATION']
+
+if os.environ.get('SENSU_DRIVE_CHANNELS_LOCATION'):
+    CHANNEL_LAYERS['default']['CONFIG']['hosts'] = [os.environ['SENSU_DRIVE_CHANNELS_LOCATION']]
+    
+if os.environ.get('SENSU_API_URL'):
+    SENSU_API_URL = os.environ['SENSU_API_URL']
+    
+if os.environ.get('SENSU_API_USER'):
+    SENSU_API_USER = os.environ['SENSU_API_USER']
+
+if os.environ.get('SENSU_API_PASSWORD'):
+    SENSU_API_PASSWORD = os.environ['SENSU_API_PASSWORD']
+    
+if os.environ.get('SENSU_SLACK_BOT_TOKEN'):
+    SLACK_BOT_TOKEN = os.environ['SENSU_SLACK_BOT_TOKEN']
+
+if os.environ.get('SENSU_REGISTRATION_URL_PREFIX'):
+    REGISTRATION_URL_PREFIX = os.environ['SENSU_REGISTRATION_URL_PREFIX']
+
+
+if os.environ.get('SENSU_TWILIO_ACCOUNT_SID'):
+    TWILIO_ACCOUNT_SID = os.environ['SENSU_TWILIO_ACCOUNT_SID']
+
+if os.environ.get('SENSU_TWILIO_AUTH_TOKEN'):
+    TWILIO_AUTH_TOKEN = os.environ['SENSU_TWILIO_AUTH_TOKEN']
+
+if os.environ.get('SENSU_TWILIO_FROM_NUMBER'):
+    TWILIO_FROM_NUMBER = os.environ['SENSU_TWILIO_FROM_NUMBER']
+    
+if os.environ.get('SENSU_TWILIO_CALLBACK_API_TOKEN'):
+    TWILIO_CALLBACK_API_TOKEN = os.environ['SENSU_TWILIO_CALLBACK_API_TOKEN']
+    
+if os.environ.get('SENSU_TWILIO_CALLBACK_URL_PREFIX'):
+    TWILIO_CALLBACK_URL_PREFIX = os.environ['SENSU_TWILIO_CALLBACK_URL_PREFIX']
 
 ########################################
 
