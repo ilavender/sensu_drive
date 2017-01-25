@@ -36,7 +36,8 @@ the concept suggest that Sensu will decide which event to alert for and "Sensu D
   - resolve, resolve check using Sensu API
   - display events history (last 100 events)
   - display notifications history for each event (last 100 notifications)
-  - display events config (none standalone checks)
+  - display check config
+  - request check using Sensu API
   - events are in format of client:check
 
 - entities view
@@ -44,8 +45,9 @@ the concept suggest that Sensu will decide which event to alert for and "Sensu D
   - recovery will be sent only to subscribers that got an alert for that entity
   - display events history (last 100 events)
   - display notifications history for each entity (last 100 notifications)
-  - display events config (none standalone checks)
+  - display check config
   - delete check result from Sensu API
+  - request check using Sensu API
   - entities are in format of client:check
 
 - clients view
@@ -61,6 +63,27 @@ the concept suggest that Sensu will decide which event to alert for and "Sensu D
 - "DnD" do not disturb
   - manage "DnD" user schedule occurrences
   - "On Duty" notifications ignore "DnD"
+
+
+
+# Quick start using docker-compose
+
+
+	git clone https://github.com/ilavender/sensu_drive.git /tmp/sensu_drive
+	cd /tmp/sensu_drive
+	# edit ext/docker-variables.env
+	mkdir /tmp/sensu_drive_nginx_conf
+	cp ext/nginx-sensu_drive.conf /tmp/sensu_drive_nginx_conf/
+	docker-compose -f ext/docker-compose.yml up -d
+	# wait few seconds until db startup complete
+	docker-compose -f ext/docker-compose.yml exec sensu_drive_frontend python3 manage.py migrate
+	docker-compose -f ext/docker-compose.yml exec sensu_drive_frontend python3 manage.py collectstatic --noinput
+	docker-compose -f ext/docker-compose.yml exec sensu_drive_frontend python3 manage.py createsuperuser
+	docker-compose -f ext/docker-compose.yml scale sensu_drive_worker=3
+	# navigate to http://127.0.0.1:8080/admin
+    # add contact email address for admin user http://127.0.0.1:8080/admin/auth/user/1/change/
+    # navigate to http://127.0.0.1:8080/
+	
 
 
 
@@ -80,9 +103,7 @@ python3-dev
 
 python3-cryptography
 
-
 pip install -r requirements.txt
-
 
 Slack team account (free) and token
 
@@ -91,6 +112,10 @@ you can use your test token but for real production deployment having a dedicate
 https://api.slack.com/docs/oauth-test-tokens
 
 https://api.slack.com/bot-users
+
+for Twilio phone calls feature, the server must be accessible to the rest API callbacks
+
+https://www.twilio.com/docs/api/rest/making-calls#url-parameter  
 
 
 # Install/Configure
@@ -146,12 +171,13 @@ https://api.slack.com/bot-users
 	API_TOKEN = 'secret for isubscribe sensu handler'
 	SLACK_BOT_TOKEN = 'your-slack-api-token'
 
-	REGISTRATION_URL_PREFIX = 'http://127.0.0.1:8080'
+	REGISTRATION_URL_PREFIX = 'http(s)://IP:PORT'
 
 	TWILIO_ACCOUNT_SID = "sid string"
 	TWILIO_AUTH_TOKEN = "token string"
 	TWILIO_FROM_NUMBER = "numbers only"
 	TWILIO_CALLBACK_API_TOKEN = 'secret for twilio twiml api'
+	TWILIO_CALLBACK_URL_PREFIX='http(s)://IP:PORT'
 
 	```
 
