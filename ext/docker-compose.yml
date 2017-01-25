@@ -1,0 +1,86 @@
+version: '2.1'
+
+
+services:
+
+  nginx:
+    image: "nginx:1.9"
+    networks:
+      - sensudrive_net
+    ports:
+      - 8080:80
+      - 8443:443
+    volumes:
+      - /tmp/sensu_drive_nginx_conf:/etc/nginx/conf.d
+      - /tmp/sensu_drive_static:/tmp/sensu_drive_static:ro
+    depends_on:
+      - sensu_drive_frontend
+
+     
+  sensu_drive_frontend:
+    image: sensudrive/sensu_drive:latest
+    networks:
+      - sensudrive_net
+    ports:
+      - "8001:8080"
+    volumes:
+      - /tmp/sensu_drive_static:/usr/local/sensudrive/static_collected
+    depends_on:
+      - db
+      - redis
+    command: "daphne -b 0.0.0.0 -p 8080 sensu_drive.asgi:channel_layer"
+    env_file:
+      - docker-variables.env
+       
+       
+  sensu_drive_worker:
+    image: sensudrive/sensu_drive:latest
+    networks:
+      - sensudrive_net
+    depends_on:
+      - db
+      - redis
+      - sensu_drive_frontend    
+    command: "python3 manage.py runworker"
+    env_file:
+      - docker-variables.env  
+
+      
+  sensu_drive_jobs:
+    image: sensudrive/sensu_drive:latest
+    networks:
+      - sensudrive_net
+    depends_on:
+      - db
+      - redis
+      - sensu_drive_frontend    
+    command: "python3 manage.py jobs"
+    env_file:
+      - docker-variables.env
+  
+  
+  redis:
+    image: library/redis
+    networks:
+      - sensudrive_net
+      
+      
+  db:
+    image: library/postgres
+    networks:
+      - sensudrive_net
+    environment:
+      - POSTGRES_USER=sensudrive
+      - POSTGRES_PASSWORD=sensudrive
+      - POSTGRES_DB=sensudrive
+      
+
+networks:
+  
+  sensudrive_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.16.238.0/24
+        gateway: 172.16.238.1
