@@ -248,6 +248,7 @@ class Notify:
                 'status': self.status,
                 'timestamp': datetime.datetime.now().timestamp(),
                 'user': contact['username'],
+                'user_id': user_pk,
                 'contact': contact['slack_uid'],
                 'transport': 'notify_slack'
             })
@@ -315,6 +316,7 @@ class Notify:
                 'status': self.status,
                 'timestamp': datetime.datetime.now().timestamp(),
                 'user': contact['username'],
+                'user_id': user_pk,
                 'contact': contact['phone_number'],
                 'transport': 'notify_twilio_call'
             })
