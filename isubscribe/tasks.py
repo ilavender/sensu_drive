@@ -511,79 +511,65 @@ def alert_handler(message):
     logger.debug("alert_handler handling alert for entity: %s" % message['entity'])
     notifier = Notify(message)
     
-    #Channel('background-onduty').send(dict(message))
+    # On-Duty alerts
     if int(message['status']) >= settings.ON_DUTY_STATUS_LEVEL:
         notifier.notify_onduty()
+
+    # recovery alerts        
+    if int(message['status']) == 0:
         
-    elif int(message['status']) == 0:
-        if 'history' in message:
-            ev_history = list(message['history'])
-            ev_history.pop()          
-            for i in range(len(ev_history), 0, -1):
-                if int(ev_history[i-1]) == 0:
+        history_notify_length = r.llen('notifyhistory_entity_' + message['entity'])
+        
+        history_end = False
+        loop_counter = 0
+        page_size = 100
+        history_notify = []            
+        
+        while history_end == False and loop_counter < history_notify_length:        
+            loop_counter += 1
+                                                           
+            for history_data in r.lrange('notifyhistory_entity_' + message['entity'], ((loop_counter * page_size) - page_size), (loop_counter * page_size)):
+                
+                notify_data = pickle.loads(history_data)                
+                
+                if int(notify_data['status']) == 0:
+                    history_end = True
                     break
-                if int(ev_history[i-1]) >= settings.ON_DUTY_STATUS_LEVEL:
-                    notifier.notify_onduty()
-                    break   
-                                        
+                
+                recovery = True
+                
+                if 'user_id' in notify_data and notify_data['transport'] == 'notify_slack':
+                    if notify_data['user_id'] not in history_notify:                     
+                        history_notify.append(notify_data['user_id'])         
+                            
+        for user_pk in list(set(history_notify)):
+            logger.debug("alert_handler notify_slack user: %s entity: %s status: %s" % (str(user_pk), message['entity'], str(message['status'])))
+            notifier.notify_slack(user_pk)
+              
+        return
     
+    # user subscription alerts
     if 'rule_' + message['entity'] in cache:
         
         logger.debug("alert_handler found rule for entity: %s" % message['entity'])
         
-        rule = cache.get('rule_' + message['entity'])
+        rule = cache.get('rule_' + message['entity'])                
         
-        if int(message['status']) == 0:
+        if str(message['status']) in rule:
+                
+            logger.debug("alert_handler ALERT entity: %s status: %s" % (message['entity'], str(message['status'])))
+            esc = Escalator(message)
+            esc_required = esc.check()
             
-            history_notify = []
-            
-            if 'history' in message:                
-                # looking for users that might have got previous alerts, the same people should get recovery
-                recovery = False
-                message['history'].pop()                
-                for i in range(len(message['history']), 0, -1):
-                    last_status = message['history'][i-1]
-                    if int(last_status) == 0:
-                        break
-                    recovery = True           
-                    if str(last_status) in rule:
-                        for user_pk in rule[str(last_status)]:
-                            if user_pk not in history_notify: 
-                                history_notify.append(user_pk)
-                if recovery:
-                    logger.debug("alert_handler RECOVERY entity: %s status: %s" % (message['entity'], str(message['status'])))                
-            else:
-                # not sure this is required at all but fallback if no history exist
-                if '1' in rule:
-                    for user_pk in rule['1']:
-                            if user_pk not in history_notify: 
-                                history_notify.append(user_pk)
-                if '2' in rule:
-                    for user_pk in rule['2']:
-                            if user_pk not in history_notify:
-                                history_notify.append(user_pk)
-                                
-            for user_pk in history_notify:
+            for user_pk in rule[str(message['status'])]:
                 logger.debug("alert_handler notify_slack user: %s entity: %s status: %s" % (str(user_pk), message['entity'], str(message['status'])))
-                notifier.notify_slack(user_pk)
-                  
-            return
-        
-        elif str(message['status']) in rule:
+                notifier.notify_slack(user_pk)                    
                 
-                logger.debug("alert_handler ALERT entity: %s status: %s" % (message['entity'], str(message['status'])))
-                esc = Escalator(message)
-                esc_required = esc.check()
-                
-                for user_pk in rule[str(message['status'])]:
-                    logger.debug("alert_handler notify_slack user: %s entity: %s status: %s" % (str(user_pk), message['entity'], str(message['status'])))
-                    notifier.notify_slack(user_pk)                    
+                if esc_required and len(notifier.onduty_members()) == 0:
+                    logger.debug('############## alert_handler escalation need to be done')
+                    notifier.notify_twilio_call(user_pk)
                     
-                    if esc_required and len(notifier.onduty_members()) == 0:
-                        logger.debug('############## alert_handler escalation need to be done')
-                        notifier.notify_twilio_call(user_pk)
-                        
-                return
+            return
 
 
 
