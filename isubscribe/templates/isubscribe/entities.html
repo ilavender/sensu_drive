@@ -654,6 +654,73 @@ $(function() {
 </script>
 
 
+<script type="text/javascript">
+	function ruleBox(rule){		
+		$('#modalTitle').html('new rule');
+        $('#modalBody').text(rule);
+        $('#modalHeader').switchClass('modal-header modal-warning modal-critical modal-unknown', 'modal-header', queue=false);        
+        
+        /*
+        
+        var request = $.ajax({
+			url: "{% url "check_result" %}",
+		  	type: "POST",
+		  	data: {entity : entity, csrfmiddlewaretoken: '{{ csrf_token }}'},
+		  	dataType: "json"
+		});
+		
+		request.done(function(data) {
+			if (data.not_authenticated) {
+		        window.location.replace(data.login_url);
+		        return;
+		    }
+			if (data == null) {
+				$('#modalBody').append('<li>no config data</li>');
+				return;
+			} else {
+				$('#modalBody').html('');
+			}
+			
+			
+			if (data.check.status == 0){
+				status_img = '<img src="{% static "isubscribe/images/okay-enabled-flag.png" %}">';
+				status_description = 'Okay'; 
+			} else if (data.check.status == 1){
+				status_img = '<img src="{% static "isubscribe/images/warning-enabled-flag.jpg" %}">';
+				status_description = 'Warning'; 
+			} else if (data.check.status == 2){
+				status_img = '<img src="{% static "isubscribe/images/critical-enabled-flag.jpg" %}">';
+				status_description = 'Critical'; 
+			} else {
+				status_img = '<img src="{% static "isubscribe/images/unknown.gif" %}">';
+				status_description = 'Unknown';
+			}							
+ 
+			history_entry = '<li>' + ts_localize(data.check.executed) + ' ' + status_img + ' ' + data.check.output + '</li>';
+			$('#modalBody').html('');
+			$('#modalBody').append(history_entry); 
+ 
+									
+		  	return false;
+		});
+		
+		request.fail(function(jqXHR, textStatus) {
+		  	alert( "Request failed: " + textStatus );
+		});
+		
+		*/
+         
+        $('#msbBoxModal').modal();
+        $('#msbBoxModal').draggable({
+            handle: ".modal-header"
+        });
+        
+        return;
+    }
+</script>
+
+
+
 {% endblock %} 
 
 
@@ -676,6 +743,10 @@ $(function() {
        <div>Connecting...</div>
 </div>
 
+<div id="loading" style="display:none">
+       <div><img src="{% static "isubscribe/images/loading.gif" %}" alt="Search..." /></div>
+</div>
+
 
 {%include "isubscribe/msgbox_modal.html" %}
 
@@ -688,60 +759,100 @@ $(function() {
 	<li><article class="hentry"> 
 	
 	  <header>
-	  	<form method="get">
-	    	<h2 class="entry-title">		  	
-				<input id="entity-filter" type="text" name="entity-filter">		           
-			</h2>
-		</form>
-		<h1 id="loading_counter">Entities: 0</h1>
+	  	  	
+    	<h2 class="entry-title">
+    	
+    		<form id="searchForm">		  	
+				<input id="entity-filter" type="text" name="entity-filter" autocomplete="off">
+				<input type="submit" value="Search" id="searchButton">
+				<!-- <input type="submit" value="Rule" id="ruleButton"> -->
+			</form>
+					           
+		</h2>
+		
+		<div id="errorMessage"> </div>
+				
+		<h1 id="loading_counter">Entities: 0</h1>		
+		
+	<script>
+	
+		$("#ruleButton").click(function(e) {		
+			e.preventDefault();
+			
+			var value = $("#entity-filter").val();
+		    var loading_counter = 0;
+		    var minLength = 5;
+		    filter_mysubscribe = $('#mysubscribe').attr("data-enabled");
+	        filter_silent = $('#silent').attr("data-enabled");
+	        
+	        if (value.length >= minLength) {
+	        	        	
+        		ruleBox($("#entity-filter").val());
+        		        					
+	        } else {
+	        
+	        	$('#errorMessage').text('require minimum ' + minLength + ' characters');
+	        	if(timeout){ clearTimeout(timeout);}
+	        	timeout = setTimeout(function() {
+	        		$('#errorMessage').text('');
+				},3000);	
+	        	return false;
+	        	
+	        }
+	        
+	       	return false;					
+		
+		});
+		          	
+	</script  
+		        		
 	  </header>
 	
 	<script>
 	
-		var timeout;
+		var timeout;				
 		
-		$("#entity-filter").on("keydown", function(e) {
-			if (e.keyCode === 10 || e.keyCode === 13){
-        		e.preventDefault();
-        	}
-		});
-	
-	
-		$("#entity-filter").on("keyup", function(e) {
+		$("#searchForm").submit(function(e) {
+		
 			e.preventDefault();
-			if (e.keyCode === 10 || e.keyCode === 13 || e.keyCode === 37 || e.keyCode === 39){
-        		return true;
-        	}
-		    //var value = $(this).val().toLowerCase();
-		    var value = $(this).val();
+		    var value = $("#entity-filter").val();
 		    var loading_counter = 0;
+		    var minLength = 5;
 		    filter_mysubscribe = $('#mysubscribe').attr("data-enabled");
 	        filter_silent = $('#silent').attr("data-enabled");
 	        
-	        if (value.length > 3) {
-	        
-	        	if(timeout){ clearTimeout(timeout);}
-	        	
-	        	timeout = setTimeout(function() {
-					var request = $.ajax({
-						url: "{% url "entities" %}",
-					  	type: "POST",
-					  	data: {search : value.split("*").join(".*"), csrfmiddlewaretoken: '{{ csrf_token }}' },
-					  	dataType: "json"
-					});
-					
-					request.done(function(data) {											
-					  	return false;
-					});
-					
-					request.fail(function(jqXHR, textStatus) {
-					  	alert( "Request failed: " + textStatus );
-					});
-				},500);	        		        					
+	        if (value.length >= minLength) {
+	        	        	
+        		$('#loading').show();
+				var request = $.ajax({
+					url: "{% url "entities" %}",
+				  	type: "POST",
+				  	data: {search : value.split("*").join(".*"), csrfmiddlewaretoken: '{{ csrf_token }}' },
+				  	dataType: "json"
+				});
+				
+				request.done(function(data) {
+					$('#loading').hide();										
+				  	return false;
+				});
+				
+				request.fail(function(jqXHR, textStatus) {
+				  	alert( "Request failed: " + textStatus );
+				});
+        		        					
 	        } else {
+	        
+	        	$('#errorMessage').text('require minimum ' + minLength + ' characters');
+	        	if(timeout){ clearTimeout(timeout);}
+	        	timeout = setTimeout(function() {
+	        		$('#errorMessage').text('');
+				},3000);	
 	        	return false;
+	        	
 	        }
+	        
 	       	return false;
+	       	
 		});
 	</script>
 		  

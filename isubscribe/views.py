@@ -81,35 +81,40 @@ def entities(request):
             "text": json.dumps({'flush_signal':True})
         })
     
-                     
-        #for word in cache.keys("entity_*%s*" % request.POST['search']):
+                             
         for word in r.scan_iter(match=':1:entity_*'):
-            #if request.POST['search'].lower() in word.decode('utf-8').lower():
-            if re.search(request.POST['search'].lower(), word.decode('utf-8'), re.IGNORECASE):
-                #entity = re.sub(r'^entity_', '', word)            
+        
+            try:
+                
                 entity = re.sub(r'^:1:entity_', '', word.decode('utf-8'))
-                status_1 = False       
-                status_2 = False 
-                try:
-                    rule = cache.get('rule_' + entity)            
-                    if '1' in rule and request.user.id in rule['1']:
-                        status_1 = True            
-                    if '2' in rule and request.user.id in rule['2']:
-                        status_2 = True            
-                except:
-                    pass
-                if 'silent_' + entity in cache.keys("silent_*"):                
-                    silent = True
-                else:
-                    silent = False
+                patterns = re.compile(r'(?:%s)' % request.POST['search'], re.IGNORECASE)
+                                
+                if patterns.search(entity):                                
                     
-                result = { 'entity': entity, 'status_1': status_1, 'status_2': status_2, 'silent': silent }
-                
-                Group("entities-private-%s" % request.user.id).send({
-                    "text": json.dumps(result)
-                })
-                
-                #logger.debug("entities view search: %s result: %s" % (request.POST['search'], json.dumps(result)))
+                    status_1 = False       
+                    status_2 = False 
+                    try:
+                        rule = cache.get('rule_' + entity)            
+                        if '1' in rule and request.user.id in rule['1']:
+                            status_1 = True            
+                        if '2' in rule and request.user.id in rule['2']:
+                            status_2 = True            
+                    except:
+                        pass
+                    if 'silent_' + entity in cache.keys("silent_*"):                
+                        silent = True
+                    else:
+                        silent = False
+                        
+                    result = { 'entity': entity, 'status_1': status_1, 'status_2': status_2, 'silent': silent }
+                    
+                    Group("entities-private-%s" % request.user.id).send({
+                        "text": json.dumps(result)
+                    })
+                    
+                    #logger.debug("entities view search: %s result: %s" % (request.POST['search'], json.dumps(result)))
+            except:
+                pass
             
         data['search'] = request.POST['search']        
         data['status'] = 0
@@ -905,7 +910,7 @@ def whois(request):
 
 @permission_required('is_staff', login_url=reverse_lazy('login'))
 @login_required(login_url=reverse_lazy('login'))
-def test(request):
+def test_1(request):
 
     mimetype = 'application/json'
     data = []
@@ -986,6 +991,63 @@ def test(request):
                 #Channel('background-alert').send(message) 
         
         
+    return HttpResponse(json.dumps(data), mimetype)
+
+
+@permission_required('is_staff', login_url=reverse_lazy('login'))
+@login_required(login_url=reverse_lazy('login'))
+def mySubscribe(request):
+    
+    def user_id_subsribtions(user_id):
+        subscriptions = []
+        for word in cache.keys("rule_*"):
+            entity = re.sub(r'^rule_', '', word)               
+            status_1 = False       
+            status_2 = False 
+            try:
+                rule = cache.get('rule_' + entity)            
+                if '1' in rule and user_id in rule['1']:
+                    status_1 = True            
+                if '2' in rule and user_id in rule['2']:
+                    status_2 = True            
+            except:
+                pass
+            
+            if 'silent_' + entity in cache.keys("silent_*"):                
+                silent = True
+            else:
+                silent = False                    
+            
+            if status_1 == True or status_2 == True:
+                subscriptions.append({ 'entity': entity, 'status_1': status_1, 'status_2': status_2, 'silent': silent })
+                
+        return subscriptions
+        
+
+
+    mimetype = 'application/json'
+    data = user_id_subsribtions(request.user.id)
+    
+    
+    return HttpResponse(json.dumps(data), mimetype)
+
+
+@login_required(login_url=reverse_lazy('login'))
+def rules(request):
+    
+    mimetype = 'application/json'
+    data = {}
+    
+    return HttpResponse(json.dumps(data), mimetype)
+    
+
+@permission_required('is_staff', login_url=reverse_lazy('login'))
+@login_required(login_url=reverse_lazy('login'))
+def test(request):
+    
+    mimetype = 'application/json'
+    data = {}
+    
     return HttpResponse(json.dumps(data), mimetype)
 
 
