@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^api/alert', views.alert, name='alert'),
     url(r'^api/twilio-say', views.twilio_say, name='twilio_say'),    
     url(r'^api/twilio-status', views.twilio_status, name='twilio_status'),
+    url(r'^api/rules', views.ack, name='rules'),
     url(r'^api/ack', views.ack, name='ack'),
     url(r'^api/redo-check', views.redoCheck, name='redoCheck'),
     url(r'^api/resolve', views.resolve, name='resolve'),    

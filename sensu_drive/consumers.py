@@ -6,7 +6,7 @@ from channels.sessions import channel_session, enforce_ordering
 from channels.auth import http_session_user, channel_session_user, channel_session_user_from_http
 from channels.handler import AsgiHandler, AsgiRequest
 
-from isubscribe.tasks import alert_rules, sensu_entity_list, sensu_event_list, slack_user_detect, slack_user_nag, user_register, alert_handler, ack_handler, sensu_client_list, alert_history, sensu_check_list, notify_history, trends_build
+from isubscribe.tasks import alert_rules, sensu_entity_list, sensu_event_list, slack_user_detect, slack_user_nag, user_register, alert_handler, ack_handler, sensu_client_list, alert_history, sensu_check_list, notify_history, trends_build, user_rules
 from isubscribe.models import Subscribe
 from isubscribe.views import entities
 from isubscribe.notify import Notify
@@ -114,10 +114,14 @@ def build_entity_rules(message):
 
 
 
+def build_user_rules(message):
+    logger.info('building_user_rules begin user_id: %s' % message['user_id'])
+    user_rules(message)
+    logger.info('building_user_rules completed user_id: %s' % message['user_id'])
 
 #@enforce_ordering(slight=True)
 def notifier_hisotry(message):
-    logger.info('notifier_hisotry begin: %s' % message['entity'])
+    logger.info('notifier_hisotry consumer: %s' % message['entity'])
     notify_history(message)
     
 

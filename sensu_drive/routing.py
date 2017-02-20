@@ -22,6 +22,7 @@ channel_routing = [
     route('background-update-entities', update_entities),
     route('background-update-events', update_events),
     route('background-build-entity-rules', build_entity_rules),
+    route('background-build-user-rules', build_user_rules),
     route('background-alert', alert),    
     route('background-notify-history', notifier_hisotry),
     route('background-ack', ack),

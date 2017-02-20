@@ -523,6 +523,11 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
 	font-size: 12px;
 }
 
+#errorMessage {
+	min-height: 20px;
+	color: red;
+}
+
 #msgbox tr {
 	vertical-align: baseline;
 }
@@ -807,4 +812,16 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
 .modal-unknown {
 	color: #000305;
     background-color: #F5F4EF;    
+}
+
+#ruleForm ul {
+	list-style: none;
+}
+
+#ruleForm input[type='radio'], #ruleForm input[type='checkbox'] {
+	display: inline;
+}
+
+#ruleForm input[type='text'] {
+	width: 280px;
 }

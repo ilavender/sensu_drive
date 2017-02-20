@@ -45,3 +45,4 @@ urllib3==1.19
 zope.interface==4.3.2
 numpy==1.11.3
 pandas==0.19.1
+django-multiselectfield==0.1.5

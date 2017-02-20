@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 
-from .models import Contact, Subscribe, ScheduledEvent, ScheduledOccurrence, EventMembers
+from .models import Contact, Subscribe, ScheduledEvent, ScheduledOccurrence, EventMembers, Rule
 
 # Define an inline admin descriptor for Contact model
 # which acts a bit like a singleton
@@ -32,6 +32,7 @@ class EventMemberAdmin(admin.ModelAdmin) :
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(Subscribe)
+admin.site.register(Rule)
 
 admin.site.register(ScheduledEvent, ScheduledEventAdmin)
 admin.site.register(EventMembers, EventMemberAdmin)

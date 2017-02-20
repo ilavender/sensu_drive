@@ -1,0 +1,145 @@
+{% load staticfiles %}
+<div id="ruleBoxModal" class="modal fade" tabindex='-1'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="ruleModalHeader" class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span> <span class="sr-only">close</span></button>
+                <h4 id="ruleModalTitle" class="modal-title"></h4>
+            </div>
+            <div id="ruleModalBody" class="modal-body">
+            
+	          <form action="{% url 'entities' %}" id="ruleForm" method="POST" data-ajax="false" {% if rule_form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+				<table class="paleblue">
+						{{ rule_form.as_table }}
+				</table>
+				{% csrf_token %}
+			  </form>
+            
+            </div>
+            <div class="modal-footer">                        	                        
+				
+            	<button type="button" id="modalRuleButtonSettingsSave" class="btn btn-default">Save</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				
+				<script>	
+				$( "#modalRuleButtonSettingsSave" ).click(function(e) {
+					e.preventDefault();
+					form_id = 'ruleForm';
+					//$('#' + form_id).submit();
+					var postData = $('#' + form_id).serializeArray();
+				    var formURL = $('#' + form_id).attr("action");
+				    $.ajax(
+				    {
+				        url : formURL,
+				        type: "POST",
+				        data : postData,
+				        success:function(data, textStatus, jqXHR){
+				        					        	
+				        	var ele = $('<tr id="rule_row_' + data.id + '"></tr>');
+				        	ele.append(
+					            $('<td class="entity-ack">' + data.id + '</td>')
+					        );
+				        	ele.append(
+					            $('<td class="entity-ack">' + data.name + '</td>')
+					        );
+				        	ele.append(
+					            $('<td class="entity-ack">' + data.regex_string + '</td>')
+					        );
+				        	
+				        	statuses = $('<td class="entity-ack"></td>');
+				        	
+				        	for (var i = 0; i < data.status.length; i++) {				        		
+				        		statuses.append('<img src="{% static "isubscribe/images/status-" %}' + data.status[i] +'.jpg">');
+				        	}
+				        	
+				        	ele.append(
+				        		statuses
+					        );
+				        	
+					        delete_link = $('<a>',{
+				            	id: 'delete_rule_link' + data.id,
+				    		    href: '',
+				    		    
+				    		    click: function(e){
+				    		    	e.preventDefault();								
+				    				
+				    		    	rule_id = data.id;
+						  			
+						  			var r = confirm("Are you sure?");
+									if (r != true) {
+									    return;
+									}
+						  			
+						  			$.ajax({
+								        url : "{% url "entities" %}",
+								        type: "POST",
+								        data : {action: 'rule_delete', id : rule_id, csrfmiddlewaretoken: '{{ csrf_token }}'},
+								        
+								        success:function(data, textStatus, jqXHR){
+											$('#rule_row_' + rule_id).remove();
+								            return;
+								        },
+								        
+								        error: function(jqXHR, textStatus, errorThrown){
+								            alert( "Request failed: " + jqXHR.responseText );								                  
+								        }
+								        
+								    });
+						  			
+									var request = $.ajax({
+										url: "{% url "entities" %}",
+									  	type: "POST",
+									  	data: {id : rule_id, csrfmiddlewaretoken: '{{ csrf_token }}'},
+									  	dataType: "json"
+									});
+
+				    		    	
+				    				return false;
+				    		    }
+				    		    
+				    		});
+					        
+					        run_link = $('<a>',{
+				            	id: 'run_rule_link' + data.id,
+				    		    href: '',
+				    		    
+				    		    click: function(e){
+				    		    	e.preventDefault();								
+				    				
+				    		    	rule_id = data.id;
+				    		    	regex = data.regex_string;
+				    		    	search(regex);
+						  							    		    	
+				    				return;
+				    		    }
+				    		    
+				    		});
+					        
+					        ele.append(
+					            $('<td class="entity-ack"></td>').append(
+					            	run_link.append('<img src="{% static "isubscribe/images/redo.png" %}">'),
+									delete_link.append('<img src="{% static "isubscribe/images/delete.png" %}">')
+								)
+					        );
+				        	
+				        	
+				        	$('#rulesbox').prepend(ele);
+				        	$('#ruleBoxModal .errors').remove();
+				            $('#ruleBoxModal').modal('toggle');
+				            $('#rules').show();
+				            return;
+				        },
+				        error: function(jqXHR, textStatus, errorThrown){
+				            //alert( "Request failed: " + jqXHR.responseText );
+				            $('#ruleBoxModal .errors').remove();
+				            $('#ruleBoxModal #ruleModalBody').append('<p class="errors">' + jqXHR.responseText + '</p>');      
+				        }
+				    });
+					
+				});		
+				</script>
+				
+            </div>
+        </div>
+    </div>
+</div>

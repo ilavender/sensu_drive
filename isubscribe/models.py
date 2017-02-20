@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 
 from eventtools.models import BaseEvent, BaseOccurrence
+from multiselectfield import MultiSelectField
 
 
 
@@ -31,10 +32,30 @@ class Subscribe(models.Model):
     )
     friends = models.ManyToManyField(User)
     
-    def __str__(self):   
-        return "entity: %s status: %s" % (self.entity, self.status)
+    def __str__(self):
+        return "entity: [%s] status: [%s]" % (self.entity, self.status)
     
 
+class Rule(models.Model):
+    owner = models.ForeignKey(User)
+    name = models.CharField(max_length=256, blank=False, null=False)
+    regex_string = models.CharField(blank=False, null=False, max_length=512)
+    STATUS_CHOICES = (
+        (1, 'warning'),
+        (2, 'critical'),
+    )
+    status = MultiSelectField(
+        max_length=3,
+        choices=STATUS_CHOICES,
+        blank=False,
+        null=False
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return "owner: %s name: %s status: %s" % (self.owner, self.name, self.status)
+ 
 
 class ScheduledEvent(BaseEvent):
     EVENT_CHOICES = (

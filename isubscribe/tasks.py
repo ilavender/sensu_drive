@@ -15,7 +15,7 @@ import pandas as pd
 from channels import Channel, Group
 from slacker import Slacker
 
-from isubscribe.models import Subscribe, Contact
+from isubscribe.models import Subscribe, Contact, Rule
 from isubscribe.notify import register_email
 from isubscribe.notify import Notify
 from isubscribe.escalator import escalator as Escalator
@@ -479,6 +479,67 @@ def alert_rules():
         logger.debug("alert_rules build rule for entity: %s" % entity)
         cache.set('rule_' + entity, ents[entity], timeout=None)
         
+        
+    users_rules = {}
+    
+    try:
+        
+        for obj in Rule.objects.all():
+            
+            if obj.owner.id not in users_rules:
+                users_rules[obj.owner.id] = {}
+        
+            for status in obj.status:
+                if int(status) not in users_rules[obj.owner.id]:
+                    users_rules[obj.owner.id][int(status)] = []
+                users_rules[obj.owner.id][int(status)].append(obj.regex_string)            
+            
+    except:
+        logger.error("alert_regex_rules failed")
+        raise
+    
+    for user_id in users_rules:
+        for status in users_rules[user_id]:
+            uni_regex = '|'.join(users_rules[user_id][status])
+            logger.debug("alert_rules build rule for user: %s status: %s" % (user_id, status))
+            r.set('regexrule_%s_%s' % (user_id, status), pickle.dumps(re.compile(r'(?:%s)' % uni_regex, re.IGNORECASE)))
+            
+        for status in [1,2]:
+            if status not in users_rules[user_id]:
+                logger.debug("alert_rules clean rule for user: %s status: %s" % (user_id, status))
+                r.delete('regexrule_%s_%s' % (user_id, status))
+                
+    return
+
+
+def user_rules(message):
+    users_rules = {}
+    try:        
+        for obj in Rule.objects.filter(owner=message['user_id']):
+        
+            if obj.owner.id not in users_rules:
+                users_rules[obj.owner.id] = {}
+        
+            for status in obj.status:
+                if int(status) not in users_rules[obj.owner.id]:
+                    users_rules[obj.owner.id][int(status)] = []
+                users_rules[obj.owner.id][int(status)].append(obj.regex_string)            
+            
+    except:
+        logger.error("user_rules failed")
+        raise
+    
+    for user_id in users_rules:
+        for status in users_rules[user_id]:
+            uni_regex = '|'.join(users_rules[user_id][status])
+            logger.debug("user_rules build rule for user: %s status: %s" % (user_id, status))
+            r.set('regexrule_%s_%s' % (user_id, status), pickle.dumps(re.compile(r'(?:%s)' % uni_regex, re.IGNORECASE)))
+        for status in [1,2]:
+            if status not in users_rules[user_id]:
+                logger.debug("user_rules clean rule for user: %s status: %s" % (user_id, status))
+                r.delete('regexrule_%s_%s' % (user_id, status))
+    return
+
 
 
 def alert_history(message):    
@@ -548,7 +609,7 @@ def alert_handler(message):
               
         return
     
-    # user subscription alerts
+    # entities subscription rules
     if 'rule_' + message['entity'] in cache:
         
         logger.debug("alert_handler found rule for entity: %s" % message['entity'])
@@ -562,14 +623,28 @@ def alert_handler(message):
             esc_required = esc.check()
             
             for user_pk in rule[str(message['status'])]:
-                logger.debug("alert_handler notify_slack user: %s entity: %s status: %s" % (str(user_pk), message['entity'], str(message['status'])))
+                logger.debug("alert_handler [entities subscription rules] notify_slack user: %s entity: %s status: %s" % (str(user_pk), message['entity'], str(message['status'])))
                 notifier.notify_slack(user_pk)                    
                 
                 if esc_required and len(notifier.onduty_members()) == 0:
-                    logger.debug('############## alert_handler escalation need to be done')
+                    logger.debug('### alert_handler escalation need to be done')
                     notifier.notify_twilio_call(user_pk)
-                    
-            return
+
+    # user regex rules alerts
+    for rule in r.scan_iter(match='regexrule_*_%s' % message['status']):
+        
+        try:
+                                            
+            patterns = pickle.loads(r.get(rule))
+            
+            if patterns.search(message['entity']):
+                prefix, user_id, rule_status = rule.decode('utf-8').split('_')                
+                logger.debug("alert_handler [user regex rules alerts] notify_slack user_id: %s entity: %s status: %s" % (user_id, message['entity'], str(message['status'])))
+                notifier.notify_slack(int(user_id))
+                
+        except:
+            logger.error('alert_handler regex rules alerts failed')
+            raise
 
 
 

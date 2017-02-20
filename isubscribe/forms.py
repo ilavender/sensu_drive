@@ -3,7 +3,7 @@ from django import forms
 from django.forms import ModelForm, widgets
 
 from django.contrib.auth.models import User
-from isubscribe.models import ScheduledOccurrence, ScheduledEvent, Contact
+from isubscribe.models import ScheduledOccurrence, ScheduledEvent, Contact, Rule
 from asyncio.log import logger
 
 
@@ -120,9 +120,31 @@ class ContactForm(ModelForm):
         return super(ContactForm, self)
 
 
-                                        
 
-            
-                         
+class RuleForm(ModelForm):
     
-         
+    #owner = forms.CharField(widget=forms.HiddenInput())
+    
+    class Meta:
+        model = Rule
+        fields = ['id', 'name', 'regex_string', 'status', 'owner']
+        
+    
+    def __init__(self, *args, **kwargs):
+        
+        if 'user' in kwargs:
+            self.user = kwargs.pop('user', None)  
+                    
+        super(RuleForm, self).__init__(*args, **kwargs)
+        
+        self.fields['owner'].queryset = User.objects.filter(id=self.user.id)
+   
+    '''
+    def save(self, commit=True):
+        rule_obj = Rule(owner=self.user)
+        rule_obj.name = self.data['name']
+        rule_obj.regex_string = self.data['regex_string']        
+        rule_obj.status = self.data['status']
+        rule_obj.save()
+        return super(RuleForm, self)
+    '''

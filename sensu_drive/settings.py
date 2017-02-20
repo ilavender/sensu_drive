@@ -262,6 +262,8 @@ THROTTLING_TWILIO_USER_ENTITY_TTL = 3600
 ARBITRARY_EVENTS_MIN_OCCURRENCES = 2
 
 
+MAX_ENTITY_SEARCH_RESULTS = 500
+
 ########################################
 
 if os.environ.get('SENSU_DRIVE_DB_NAME'):

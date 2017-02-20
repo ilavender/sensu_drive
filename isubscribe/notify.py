@@ -76,7 +76,7 @@ class Notify:
         self.slack_attachments = [{
                     "fallback": self.slack_msg_content_fallback,
                     "title": self.entity,
-                    "title_link": "%s%s?event=%s" % (settings.REGISTRATION_URL_PREFIX, reverse_lazy('events'), self.entity),
+                    "title_link": "%s%s" % (settings.REGISTRATION_URL_PREFIX, reverse_lazy('events')),
                     "text": self.output,
                     "color": self.color,
                     "author_name": settings.SLACK_BOT_NAME,
@@ -221,7 +221,7 @@ class Notify:
             '''
 
 
-    def notify_slack(self, user_pk, dnd_ignore=False):
+    def notify_slack(self, user_pk, dnd_ignore=False):        
         
         if dnd_ignore == False and self.user_dnd(user_pk):
             logger.debug('notify_slack user id: %s is in DnD' % (user_pk))

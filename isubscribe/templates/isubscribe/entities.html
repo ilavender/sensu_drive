@@ -30,14 +30,14 @@ $(function() {
         var data = JSON.parse(message.data);
         
         if (data.ready_signal){			
-			$('#loading_counter').text('Entities ' + loading_counter);
+			$('#loading_counter').text(loading_counter);
 			return false; 
 		}
         
         if (data.flush_signal){
         	msgbox.html('');
         	loading_counter = 0;			
-			$('#loading_counter').text('Entities ' + loading_counter);
+			$('#loading_counter').text(loading_counter);
 			return false; 
 		}
         
@@ -66,7 +66,6 @@ $(function() {
 			status_2_status = 0;			
 		}
 		
-		
 		w_comment = '<span>toggle warning subscription</span>';
 		c_comment = '<span>toggle critical subscription</span>';
 		
@@ -82,7 +81,29 @@ $(function() {
 	
         ele.append(
             $("<td></td>").text(data.entity)
-        );        
+        );                 
+        
+        if (data.regex_1 || data.regex_2){
+			regex_match_img_url = '{% static "isubscribe/images/rule.png" %}';
+			var regex_match_img = $('<img id="rule-img_' + entity_id + '">');
+			regex_match_img.attr('src', regex_match_img_url);			
+			comment = '<span>rule [warning:' + data.regex_1 + ', critical:' + data.regex_2 + ']</span>';
+			
+			ele.append(
+	            $("<td class=\"entity-ack\"></td>").append(
+	            	$('<a>',{
+				    	href: '#',
+				    })
+	        	).append(regex_match_img).append(comment)
+	        );
+	        
+		} else {
+			
+			ele.append(
+	            $("<td class=\"entity-ack\"></td>")
+	        );
+	        		
+		}    
         
         ele.append(
         	$("<td class=\"entity-ack\"></td>").append(
@@ -122,7 +143,7 @@ $(function() {
 				}).append(warn_img)
 			).append(w_comment)
         );
-        
+                        
         
         ele.append(
         	$("<td class=\"entity-ack\"></td>").append(
@@ -396,7 +417,7 @@ $(function() {
         $('#' + entity_id).remove();
         msgbox.prepend(ele);
         
-        $('#loading_counter').text('Loading ' + loading_counter);
+        $('#loading_counter').text(loading_counter);
         	
 	    
     };
@@ -407,6 +428,52 @@ $(function() {
     };
     
 });
+
+</script>
+
+<script type="text/javascript">
+
+	function search(regex){
+    	var value = regex;
+	    var loading_counter = 0;
+	    var minLength = 5;
+	    
+	    filter_mysubscribe = $('#mysubscribe').attr("data-enabled");
+        filter_silent = $('#silent').attr("data-enabled");
+        
+        if (value.length >= minLength) {
+        	$('#rules').hide();
+        	$('#show-rules-button').show();
+    		$('#loading').show();
+			var request = $.ajax({
+				url: "{% url "entities" %}",
+			  	type: "POST",
+			  	data: {search : value.split("*").join(".*"), csrfmiddlewaretoken: '{{ csrf_token }}' },
+			  	dataType: "json"
+			});
+			
+			request.done(function(data) {
+				$('#loading').hide();										
+			  	return false;
+			});
+			
+			request.fail(function(jqXHR, textStatus) {
+			  	alert( "Request failed: " + textStatus );
+			});
+    		        					
+        } else {
+        
+        	$('#errorMessage').text('require minimum ' + minLength + ' characters');
+        	if(timeout){ clearTimeout(timeout);}
+        	timeout = setTimeout(function() {
+        		$('#errorMessage').text('');
+			},3000);	
+        	return false;
+        	
+        }
+	        
+		return;
+	}
 
 </script>
 
@@ -656,69 +723,19 @@ $(function() {
 
 <script type="text/javascript">
 	function ruleBox(rule){		
-		$('#modalTitle').html('new rule');
-        $('#modalBody').text(rule);
-        $('#modalHeader').switchClass('modal-header modal-warning modal-critical modal-unknown', 'modal-header', queue=false);        
+		$('#ruleModalTitle').html('regex rules coming soon...');
+        //$('#ruleModalBody').html('');
+        //$('#ruleModalHeader').switchClass('modal-header modal-warning modal-critical modal-unknown', 'modal-header', queue=false);        
         
-        /*
-        
-        var request = $.ajax({
-			url: "{% url "check_result" %}",
-		  	type: "POST",
-		  	data: {entity : entity, csrfmiddlewaretoken: '{{ csrf_token }}'},
-		  	dataType: "json"
-		});
-		
-		request.done(function(data) {
-			if (data.not_authenticated) {
-		        window.location.replace(data.login_url);
-		        return;
-		    }
-			if (data == null) {
-				$('#modalBody').append('<li>no config data</li>');
-				return;
-			} else {
-				$('#modalBody').html('');
-			}
-			
-			
-			if (data.check.status == 0){
-				status_img = '<img src="{% static "isubscribe/images/okay-enabled-flag.png" %}">';
-				status_description = 'Okay'; 
-			} else if (data.check.status == 1){
-				status_img = '<img src="{% static "isubscribe/images/warning-enabled-flag.jpg" %}">';
-				status_description = 'Warning'; 
-			} else if (data.check.status == 2){
-				status_img = '<img src="{% static "isubscribe/images/critical-enabled-flag.jpg" %}">';
-				status_description = 'Critical'; 
-			} else {
-				status_img = '<img src="{% static "isubscribe/images/unknown.gif" %}">';
-				status_description = 'Unknown';
-			}							
- 
-			history_entry = '<li>' + ts_localize(data.check.executed) + ' ' + status_img + ' ' + data.check.output + '</li>';
-			$('#modalBody').html('');
-			$('#modalBody').append(history_entry); 
- 
-									
-		  	return false;
-		});
-		
-		request.fail(function(jqXHR, textStatus) {
-		  	alert( "Request failed: " + textStatus );
-		});
-		
-		*/
-         
-        $('#msbBoxModal').modal();
-        $('#msbBoxModal').draggable({
+        $('#id_regex_string').val(rule);
+        $('#ruleBoxModal').modal();
+        $('#ruleBoxModal').draggable({
             handle: ".modal-header"
         });
         
         return;
     }
 </script>
-
 
 
 {% endblock %} 
@@ -749,6 +766,7 @@ $(function() {
 
 
 {%include "isubscribe/msgbox_modal.html" %}
+{%include "isubscribe/rulebox_modal.html" %}
 
 
 <section id="content" class="body">
@@ -762,17 +780,20 @@ $(function() {
 	  	  	
     	<h2 class="entry-title">
     	
-    		<form id="searchForm">		  	
-				<input id="entity-filter" type="text" name="entity-filter" autocomplete="off">
+    		<form id="searchForm">    			
+				<input id="entity-filter" type="text" name="entity-filter" autocomplete="off">				
 				<input type="submit" value="Search" id="searchButton">
-				<!-- <input type="submit" value="Rule" id="ruleButton"> -->
+				<input type="submit" value="Rule" id="ruleButton">
+				<!--
+				<abbr class="published" title="regex format accepted">
+	  	        	<img src="{% static "isubscribe/images/icon_help.png" %}" alt="Search..." />	          	        
+				</abbr>
+				-->
 			</form>
 					           
 		</h2>
 		
-		<div id="errorMessage"> </div>
-				
-		<h1 id="loading_counter">Entities: 0</h1>		
+		<div id="errorMessage"> </div>								
 		
 	<script>
 	
@@ -815,41 +836,7 @@ $(function() {
 		$("#searchForm").submit(function(e) {
 		
 			e.preventDefault();
-		    var value = $("#entity-filter").val();
-		    var loading_counter = 0;
-		    var minLength = 5;
-		    filter_mysubscribe = $('#mysubscribe').attr("data-enabled");
-	        filter_silent = $('#silent').attr("data-enabled");
-	        
-	        if (value.length >= minLength) {
-	        	        	
-        		$('#loading').show();
-				var request = $.ajax({
-					url: "{% url "entities" %}",
-				  	type: "POST",
-				  	data: {search : value.split("*").join(".*"), csrfmiddlewaretoken: '{{ csrf_token }}' },
-				  	dataType: "json"
-				});
-				
-				request.done(function(data) {
-					$('#loading').hide();										
-				  	return false;
-				});
-				
-				request.fail(function(jqXHR, textStatus) {
-				  	alert( "Request failed: " + textStatus );
-				});
-        		        					
-	        } else {
-	        
-	        	$('#errorMessage').text('require minimum ' + minLength + ' characters');
-	        	if(timeout){ clearTimeout(timeout);}
-	        	timeout = setTimeout(function() {
-	        		$('#errorMessage').text('');
-				},3000);	
-	        	return false;
-	        	
-	        }
+		    search($("#entity-filter").val());
 	        
 	       	return false;
 	       	
@@ -857,7 +844,7 @@ $(function() {
 	</script>
 		  
 	  <footer class="post-info">
-        <abbr class="published" title="one filter applied at a time">
+        <abbr class="published" title="apply filter on search results">
           Filters:
         </abbr>
  
@@ -879,7 +866,7 @@ $(function() {
 		            loading_counter++;	            	
 			    });
 
-				$('#loading_counter').text('All ' + loading_counter);
+				$('#loading_counter').text(loading_counter);
 			    $('.entities-item').show();
 			    
 			    return false;
@@ -904,7 +891,7 @@ $(function() {
 					
 		            if (silent_status == 'true') {
 		            	loading_counter++;
-	            		$('#loading_counter').text('Silenced ' + loading_counter);
+	            		$('#loading_counter').text(loading_counter);
 		                $(this).show();
 		            }
 		            else {
@@ -912,7 +899,7 @@ $(function() {
 		            }           
 			    });
 			    
-			    $('#loading_counter').text('Silenced ' + loading_counter);
+			    $('#loading_counter').text(loading_counter);
 			    
 			    return false;
 			});
@@ -938,7 +925,7 @@ $(function() {
 					
 		            if (warning_status == '1' || critical_status == '1') {
 		            	loading_counter++;
-	            		$('#loading_counter').text('mySubscribe ' + loading_counter);
+	            		$('#loading_counter').text(loading_counter);
 		                $(this).show();
 		            }
 		            else {
@@ -946,7 +933,7 @@ $(function() {
 		            }           
 			    });
 			    
-			    $('#loading_counter').text('mySubscribe ' + loading_counter);
+			    $('#loading_counter').text(loading_counter);
 			    
 			    return false;
 			});
@@ -958,7 +945,91 @@ $(function() {
       </footer>	
            
 	</article></li>  
+
 	
+           
+	<li id="rules"><article class="hentry">
+		<div class="entry-content">		
+      		<table>  
+      			<tbody id="rulesbox">      				
+		      		{% for r in user_rules %}
+					<tr id="rule_row_{{ r.id }}">
+						<td> {{ r.id }}</td>
+					  	<td> {{ r.name }}</td>
+					  	<td> {{ r.regex_string }}</td>					  	
+					  	<td>
+					  		{% for status in r.status %}
+					  			<img src="{% static "isubscribe/images/" %}status-{{ status }}.jpg" alt="{{ status }}-flag">
+					  		{% endfor %}
+					  	</td>
+					  		
+					  	<td class="entity-ack">
+					  		<a href="#" id="rule_run_{{ r.id }}"><img src="{% static "isubscribe/images/redo.png" %}"></a>
+					  		<script>
+						  		$('#rule_run_{{ r.id }}').click(function(e){
+						  			e.preventDefault();
+						  			regex = '{{ r.regex_string }}';
+									search(regex);
+				  			
+							    	return;
+								});
+							</script>
+					  		<a href="#" id="rule_delete_{{ r.id }}"><img src="{% static "isubscribe/images/delete.png" %}"></a>
+					  		<script>
+						  		$('#rule_delete_{{ r.id }}').click(function(e){
+						  			e.preventDefault();
+						  			rule_id = {{ r.id }};
+						  			
+						  			var r = confirm("Are you sure?");
+									if (r != true) {
+									    return;
+									}
+						  			
+						  			$.ajax({
+								        url : "{% url "entities" %}",
+								        type: "POST",
+								        data : {action: 'rule_delete', id : rule_id, csrfmiddlewaretoken: '{{ csrf_token }}'},
+								        
+								        success:function(data, textStatus, jqXHR){
+											$('#rule_row_{{ r.id }}').remove();
+								            return;
+								        },
+								        
+								        error: function(jqXHR, textStatus, errorThrown){
+								            alert( "Request failed: " + jqXHR.responseText );								                  
+								        }
+								        
+								    });
+						  			
+									var request = $.ajax({
+										url: "{% url "entities" %}",
+									  	type: "POST",
+									  	data: {id : rule_id, csrfmiddlewaretoken: '{{ csrf_token }}'},
+									  	dataType: "json"
+									});
+									
+									
+				  			
+							    	return false;
+								});
+							</script>
+					  	</td>
+					</tr> 
+					{% endfor %}	  
+
+				</tbody>
+		    </table>
+		</div>
+		
+		
+	  <footer class="post-info">
+        <abbr class="published" title="regex rules [id, name, regex, status]">
+          Rules:
+        </abbr>        
+      </footer>
+      	
+	</article></li>
+
 
 	<li><article class="hentry">
 		<div class="entry-content" id="entities">
@@ -967,7 +1038,25 @@ $(function() {
 
 				</tbody>
 		    </table>
-		</div>		
+		</div>
+		
+		<footer class="post-info">
+          <abbr class="published" title="match results">
+  	        Results: <span id="loading_counter">0</span>  	          	        
+          </abbr> 
+          <address class="vcard author">
+  	        <a href="#" id="show-rules-button" style="display:none;">Rules</a>
+	  		<script>
+		  		$('#show-rules-button').click(function(e){
+		  			e.preventDefault();		  			
+  					$('#rules').show();
+  					$('#show-rules-button').hide();
+			    	return false;
+				});
+			</script>
+		  </address>
+               
+        </footer>	
 	</article></li> 
 	
 	  

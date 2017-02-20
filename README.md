@@ -41,8 +41,9 @@ the concept suggest that Sensu will decide which event to alert for and "Sensu D
   - events are in format of client:check
 
 - entities view
+  - regex rules to subscribe for warning, critical or both alerts
   - user can subscribe for warning, critical or both alerts for each entity
-  - recovery will be sent only to subscribers that got an alert for that entity
+  - recovery will be sent only to subscribers that got an alert for an entity
   - display events history (last 100 events)
   - display notifications history for each entity (last 100 notifications)
   - display check config

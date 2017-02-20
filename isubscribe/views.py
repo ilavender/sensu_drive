@@ -24,13 +24,14 @@ from twilio import twiml
 
 from channels import Channel, Group
 
-from isubscribe.models import Subscribe, Contact, ScheduledEvent, EventMembers, ScheduledOccurrence
+from isubscribe.models import Subscribe, Contact, ScheduledEvent, EventMembers, ScheduledOccurrence, Rule
 from isubscribe.notify import Notify
 from isubscribe.tasks import sensu_event_resolve, sensu_client_delete, sensu_result_delete, y_predict, y_sum_by_time
-from isubscribe.forms import ScheduledEventForm, ContactForm
+from isubscribe.forms import ScheduledEventForm, ContactForm, RuleForm
 
 import logging
 from re import search
+
 logger = logging.getLogger(__name__)
 
 import redis
@@ -81,7 +82,7 @@ def entities(request):
             "text": json.dumps({'flush_signal':True})
         })
     
-                             
+        match_counter = 0             
         for word in r.scan_iter(match=':1:entity_*'):
         
             try:
@@ -91,22 +92,50 @@ def entities(request):
                                 
                 if patterns.search(entity):                                
                     
+                    match_counter += 1
+                    if match_counter > settings.MAX_ENTITY_SEARCH_RESULTS:
+                        break
                     status_1 = False       
-                    status_2 = False 
+                    status_2 = False                                       
+                    subscribed_status = []                    
+                     
                     try:
                         rule = cache.get('rule_' + entity)            
                         if '1' in rule and request.user.id in rule['1']:
-                            status_1 = True            
+                            subscribed_status.append(1)            
                         if '2' in rule and request.user.id in rule['2']:
-                            status_2 = True            
+                            subscribed_status.append(2)            
                     except:
                         pass
+                    
+                    if 1 in subscribed_status:
+                        status_1 = True
+                    if 2 in subscribed_status:
+                        status_2 = True
+                    
+                    regex_match_1 = False
+                    regex_match_2 = False
+                    regex_match_status = []
+                    
+                    for rule_status in [1, 2]:                                                       
+                        try:                                                                
+                            patterns = pickle.loads(r.get('regexrule_%s_%s' % (request.user.id, rule_status)))                                
+                            if patterns.search(entity):                                
+                                regex_match_status.append(rule_status)
+                        except:
+                            pass
+                                        
+                    if 1 in regex_match_status:
+                        regex_match_1 = True
+                    if 2 in regex_match_status:
+                        regex_match_2 = True
+                                        
                     if 'silent_' + entity in cache.keys("silent_*"):                
                         silent = True
                     else:
-                        silent = False
-                        
-                    result = { 'entity': entity, 'status_1': status_1, 'status_2': status_2, 'silent': silent }
+                        silent = False                                                                                                                            
+                    
+                    result = { 'entity': entity, 'status_1': status_1, 'status_2': status_2, 'silent': silent, 'regex_1': regex_match_1, 'regex_2': regex_match_2 }
                     
                     Group("entities-private-%s" % request.user.id).send({
                         "text": json.dumps(result)
@@ -114,19 +143,71 @@ def entities(request):
                     
                     #logger.debug("entities view search: %s result: %s" % (request.POST['search'], json.dumps(result)))
             except:
-                pass
+                raise
             
         data['search'] = request.POST['search']        
         data['status'] = 0
         data['timestamp'] = datetime.datetime.now().timestamp()
             
         return HttpResponse(json.dumps(data), mimetype)
+    
+    
+    if request.method == 'POST' and 'name' in request.POST:
+        
+        logger.debug('entities view new rule user %s' % (request.user.username))
+        mimetype = 'application/json'
+        
+        try:
+            re.compile(request.POST['regex_string'])
+        except:
+            return HttpResponse(json.dumps(['invalid regex_string']), status=409)
+        
+        form = RuleForm(request.POST, user=request.user)
+        if form.is_valid:
+            try:
+                new_rule = form.save(commit=True)
+                logger.debug('entities view new rule id: %s' % new_rule.id)
+                Channel('background-build-user-rules').send({'user_id': request.user.id})
+                return HttpResponse(json.dumps({'id':new_rule.id, 'name':new_rule.name, 'regex_string':new_rule.regex_string, 'status':new_rule.status}), mimetype)            
+            except:
+                return HttpResponse(json.dumps(form.errors), status=409)
+        else:
+            return HttpResponse(json.dumps(form.errors), status=409)
+        
+    if request.method == 'POST' and 'action' in request.POST and request.POST['action'] == 'rule_delete':
+        
+        logger.debug('entities delete new rule id %s' % (request.POST['id']))        
+        
+        rule_obj = Rule.objects.get(owner=request.user.id, id=request.POST['id'])
+        form = RuleForm(instance=rule_obj, user=request.user)
+        if form.is_valid:
+            try:
+                rule_obj.delete()
+                Channel('background-build-user-rules').send({'user_id': request.user.id})
+                return HttpResponse('Done', status=200)            
+            except: 
+                return HttpResponse(json.dumps(form.errors), status=409)
+        else:
+            return HttpResponse(json.dumps(form.errors), status=409)
         
     
+    if request.method == 'POST' and 'action' in request.POST and request.POST['action'] == 'rule_list':
+        
+        logger.debug('entities list new rule for user %s' % (request.user.username))        
+        
+        data = {}
+        mimetype = 'application/json'
+        
+        return HttpResponse(json.dumps(Rule.objects.filter(owner=request.user.id).all()), mimetype)
+                
+            
+    
     data = {}
+    user_rules = Rule.objects.filter(owner=request.user.id)
+    rule_form = RuleForm(initial={'owner': request.user}, user=request.user)
     profile_form = ContactForm(instance=Contact.objects.get(user=request.user.id), user=request.user)
       
-    return render(request, 'isubscribe/entities.html', {'DATA':data, 'profile_form': profile_form})
+    return render(request, 'isubscribe/entities.html', {'DATA':data, 'profile_form': profile_form, 'user_rules': user_rules, 'rule_form': rule_form})
 
 
 
