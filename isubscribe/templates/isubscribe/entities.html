@@ -48,7 +48,6 @@ $(function() {
         entity_id = entity_id.replace(/\./g, "_");
                 
         var ele = $('<tr id="' + entity_id + '" class="entities-item"></tr>');
-        //var ele = $('<tr id="' + entity_id + '"></tr>');
                 
         if (data.status_1){
 			status_1_img = '{% static "isubscribe/images/warning-enabled-flag.jpg" %}';
@@ -79,8 +78,12 @@ $(function() {
 		crit_img.attr('data-status', status_2_status);
 						
 	
+		var entity_span;
+		if (data.entity.length >= 88){
+			entity_span = '<span>' + data.entity + '</span>';
+		}
         ele.append(
-            $("<td></td>").text(data.entity)
+            $('<td class="entity-title"></td>').text(data.entity).append(entity_span)
         );                 
         
         if (data.regex_1 || data.regex_2){
@@ -722,12 +725,22 @@ $(function() {
 
 
 <script type="text/javascript">
-	function ruleBox(rule){		
-		$('#ruleModalTitle').html('regex rules coming soon...');
-        //$('#ruleModalBody').html('');
-        //$('#ruleModalHeader').switchClass('modal-header modal-warning modal-critical modal-unknown', 'modal-header', queue=false);        
-        
-        $('#id_regex_string').val(rule);
+	function ruleBox(regex_string, id, name, statuses){
+		if (id !== undefined) {
+			$('#id_id').remove();
+			$('#ruleForm').append('<input id="id_id" type="hidden" name="id" value=>');
+			$('#id_id').val(id);
+		}
+		if (name !== undefined) {
+			$('#id_name').val(name);
+		}
+		if (statuses !== undefined) {
+			for (var i = 0; i < statuses.length; i++) {
+				//statuses[i]
+			}
+		}
+		$('#ruleModalTitle').html('regex rule');
+        $('#id_regex_string').val(regex_string);
         $('#ruleBoxModal').modal();
         $('#ruleBoxModal').draggable({
             handle: ".modal-header"
@@ -940,7 +953,22 @@ $(function() {
 		  </script>
 		  
         </address>
-               
+        
+        
+        <abbr class="published" title="match results">
+  	        Results: <span id="loading_counter">0</span>  	          	        
+          </abbr> 
+          <address class="vcard author">
+  	        <a href="#" id="show-rules-button" style="display:none;">Show Rules</a>
+	  		<script>
+		  		$('#show-rules-button').click(function(e){
+		  			e.preventDefault();		  			
+  					$('#rules').show();
+  					$('#show-rules-button').hide();
+			    	return false;
+				});
+			</script>
+		  </address>   	
         
       </footer>	
            
@@ -954,17 +982,17 @@ $(function() {
       			<tbody id="rulesbox">      				
 		      		{% for r in user_rules %}
 					<tr id="rule_row_{{ r.id }}">
-						<td> {{ r.id }}</td>
-					  	<td> {{ r.name }}</td>
-					  	<td> {{ r.regex_string }}</td>					  	
-					  	<td>
+						<td class="rule-id"> {{ r.id }}</td>
+					  	<td class="rule-name"> {{ r.name }}</td>
+					  	<td class="rule-string"> {{ r.regex_string }}</td>					  	
+					  	<td class="rule-status">
 					  		{% for status in r.status %}
 					  			<img src="{% static "isubscribe/images/" %}status-{{ status }}.jpg" alt="{{ status }}-flag">
 					  		{% endfor %}
 					  	</td>
 					  		
-					  	<td class="entity-ack">
-					  		<a href="#" id="rule_run_{{ r.id }}"><img src="{% static "isubscribe/images/redo.png" %}"></a>
+					  	<td class="rule-action">
+					  		<a href="#" id="rule_run_{{ r.id }}"><img src="{% static "isubscribe/images/play.png" %}"></a>
 					  		<script>
 						  		$('#rule_run_{{ r.id }}').click(function(e){
 						  			e.preventDefault();
@@ -974,6 +1002,23 @@ $(function() {
 							    	return;
 								});
 							</script>
+							
+							<!--
+							<a href="#" id="rule_edit_{{ r.id }}"><img src="{% static "isubscribe/images/edit.gif" %}"></a>
+							<script>
+						  		$('#rule_edit_{{ r.id }}').click(function(e){
+						  			e.preventDefault();
+						  			regex_string = '{{ r.regex_string }}';
+						  			id = {{ r.id }};
+						  			name = '{{ r.name }}';
+						  			status = {{ r.status }};
+									ruleBox(regex_string, id, name, status)
+				  			
+							    	return;
+								});
+							</script>
+							-->
+							
 					  		<a href="#" id="rule_delete_{{ r.id }}"><img src="{% static "isubscribe/images/delete.png" %}"></a>
 					  		<script>
 						  		$('#rule_delete_{{ r.id }}').click(function(e){
@@ -1023,7 +1068,7 @@ $(function() {
 		
 		
 	  <footer class="post-info">
-        <abbr class="published" title="regex rules [id, name, regex, status]">
+        <abbr class="published" title="regex rules [name, regex, status]">
           Rules:
         </abbr>        
       </footer>
@@ -1031,7 +1076,7 @@ $(function() {
 	</article></li>
 
 
-	<li><article class="hentry">
+	<li><article class="hentry no-info">
 		<div class="entry-content" id="entities">
       		<table>  
       			<tbody id="msgbox">	  
@@ -1040,6 +1085,7 @@ $(function() {
 		    </table>
 		</div>
 		
+		<!--
 		<footer class="post-info">
           <abbr class="published" title="match results">
   	        Results: <span id="loading_counter">0</span>  	          	        
@@ -1056,7 +1102,9 @@ $(function() {
 			</script>
 		  </address>
                
-        </footer>	
+        </footer>
+        -->	
+        
 	</article></li> 
 	
 	  

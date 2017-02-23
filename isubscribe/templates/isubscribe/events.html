@@ -91,9 +91,12 @@ $(function() {
             $("<td class=\"entity-datetime\"></td>").append(date_string)
         );
         
-        ele.append(        
-            //$("<td class=\"entity-data\"></td>").html(entity_element).append(output_element)
-            $("<td class=\"entity-data\"></td>").html(entity_element)
+        var entity_span;
+		if (entity.length >= 88){
+			entity_span = '<span>' + entity + '</span>';
+		}
+        ele.append(
+            $("<td class=\"entity-data\"></td>").html(entity_element).append(entity_span)
         );
         
         ele.append(

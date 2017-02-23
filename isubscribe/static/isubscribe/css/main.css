@@ -100,7 +100,7 @@ table {margin: .5em auto 1.5em auto; width: 98%;}
 	thead td {}
 
 	/* Tbody */
-	tbody td {padding: .5em .4em;}
+	tbody td {padding: .4em .6em;}
 	tbody th {}
 	
 	tbody .alt td {}
@@ -392,6 +392,7 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
 	/* Blog Index */
 	#posts-list {list-style: none; margin: 0;}
 	#posts-list .hentry {padding-left: 200px; position: relative;}
+	#posts-list .no-info {clear: both; padding-left: 20px; position: relative;}
 	#posts-list .hentry:hover {
 		//background: #C64350;
 		//color: #fff;
@@ -524,17 +525,22 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
 }
 
 #errorMessage {
-	min-height: 20px;
+	min-height: 32px;
 	color: red;
 }
+
+
+//
 
 #msgbox tr {
 	vertical-align: baseline;
 }
 
 #msgbox td {
-	vertical-align: top;
+	vertical-align: middle;
+	padding: 0.4em 0.5em 0 0;
 }
+
 
 .entity-datetime {
 	vertical-align: middle;
@@ -550,13 +556,23 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
     height: 100%;
     line-height: 100%;
     padding: 2px 0 2px 0;
+    max-width: 180px;
 }
 
 .entity-data {
 	cursor: pointer;
 	color: #000305;
+	overflow-x: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;	
 }
 
+.entity-data div {
+	max-width: 520px;
+	overflow-x: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;	
+}
 
 .entity-data p {
 	cursor: context-menu;
@@ -580,7 +596,7 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
 	opacity: 1;
 	z-index: 1;
 	background: #F8F8F8;
-    border: 3px solid #C74451;
+    border: 1px solid #C74451;
     border-radius: 3px;
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
@@ -598,6 +614,9 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
     cursor: text;
 }
 
+.entity-status {
+
+}
 
 .entity-status img {
 	vertical-align: middle;
@@ -605,6 +624,7 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
 
 .entity-ack {
 	color: #000305;
+	padding: 0 0 0 0;
 }
 
 .entity-ack a:hover, 
@@ -647,6 +667,148 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
     left:auto;
     padding: 1px 1px;
     cursor: text;
+}
+
+
+// search table
+
+#msgbox tr {
+	vertical-align: baseline;
+}
+
+#msgbox td {
+	vertical-align: middle;
+}
+
+
+
+.entity-title {
+	color: #000305;	
+	padding: 0 0.4em 0 0;
+	margin: 0 0 0 0;
+	white-space: nowrap;
+	vertical-align: middle;
+	max-width: 32em;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+}
+
+.entity-title span  {
+	display: none;
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+	height: 0;
+    width: 0;
+}
+
+
+.entity-title:hover {
+	color: #C74451;
+}
+
+.entity-title:hover span {
+	display: block;
+	opacity: 1;
+	z-index: 1;
+	background: #F8F8F8;
+    border: 1px solid #C74451;
+    border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+    color: #717171;
+    font-size: 13px;
+    height: auto;
+    width: auto;
+    letter-spacing: 1px;
+    line-height: 20px;
+    position:absolute;
+    text-align: left;
+    top: auto;
+    left:auto;
+    padding: 1px 1px;
+    cursor: text;
+    max-width: none;
+}
+
+
+// rules table
+
+#rulesbox tr {
+	vertical-align: baseline;
+}
+
+#rulesbox td {
+	vertical-align: middle;
+	color: #000305;	
+	padding: 0.4em 0.4em 0 0;
+	margin: 0 0 0 0;
+	
+}
+
+
+.rule-id {
+	display: none;
+}
+
+.rule-name {	
+	white-space: nowrap;
+	max-width: 4em;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+}
+
+.rule-name span  {
+	display: none;
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+	height: 0;
+    width: 0;
+}
+
+.rule-name:hover {
+	color: #C74451;
+}
+
+.rule-name:hover span {
+	display: block;
+	opacity: 1;
+	z-index: 1;
+	background: #F8F8F8;
+    border: 1px solid #C74451;
+    border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+    color: #717171;
+    font-size: 13px;
+    height: auto;
+    width: auto;
+    letter-spacing: 1px;
+    line-height: 20px;
+    position:absolute;
+    text-align: left;
+    top: auto;
+    left:auto;
+    padding: 1px 1px;
+    cursor: text;
+    max-width: none;
+}
+
+.rule-string {	
+	white-space: nowrap;
+	max-width: 8em;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+}
+
+.rule-action a:hover, 
+.rule-action a:active {
+	background-color: transparent;
+}
+
+.rule-status img,
+.rule-action img {
+	vertical-align: middle;
+	padding: 0 0.2em;
 }
 
 
@@ -720,6 +882,12 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
 	.modal-content { min-width: 740px; }
 }
 
+.modal-title {
+	overflow-x: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	max-width: 680px;
+}
 
 .modal-content {
     border-radius: 6px;

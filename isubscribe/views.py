@@ -161,7 +161,7 @@ def entities(request):
             re.compile(request.POST['regex_string'])
         except:
             return HttpResponse(json.dumps(['invalid regex_string']), status=409)
-        
+                
         form = RuleForm(request.POST, user=request.user)
         if form.is_valid:
             try:
@@ -203,7 +203,7 @@ def entities(request):
             
     
     data = {}
-    user_rules = Rule.objects.filter(owner=request.user.id)
+    user_rules = Rule.objects.filter(owner=request.user.id)    
     rule_form = RuleForm(initial={'owner': request.user}, user=request.user)
     profile_form = ContactForm(instance=Contact.objects.get(user=request.user.id), user=request.user)
       

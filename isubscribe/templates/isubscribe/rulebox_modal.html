@@ -37,16 +37,16 @@
 				        					        	
 				        	var ele = $('<tr id="rule_row_' + data.id + '"></tr>');
 				        	ele.append(
-					            $('<td class="entity-ack">' + data.id + '</td>')
+					            $('<td class="rule-id">' + data.id + '</td>')
 					        );
 				        	ele.append(
-					            $('<td class="entity-ack">' + data.name + '</td>')
+					            $('<td class="rule-name">' + data.name + '</td>')
 					        );
 				        	ele.append(
-					            $('<td class="entity-ack">' + data.regex_string + '</td>')
+					            $('<td class="rule-string">' + data.regex_string + '</td>')
 					        );
 				        	
-				        	statuses = $('<td class="entity-ack"></td>');
+				        	statuses = $('<td class="rule-status"></td>');
 				        	
 				        	for (var i = 0; i < data.status.length; i++) {				        		
 				        		statuses.append('<img src="{% static "isubscribe/images/status-" %}' + data.status[i] +'.jpg">');
@@ -58,7 +58,7 @@
 				        	
 					        delete_link = $('<a>',{
 				            	id: 'delete_rule_link' + data.id,
-				    		    href: '',
+				    		    href: '#',
 				    		    
 				    		    click: function(e){
 				    		    	e.preventDefault();								
@@ -101,7 +101,7 @@
 					        
 					        run_link = $('<a>',{
 				            	id: 'run_rule_link' + data.id,
-				    		    href: '',
+				    		    href: '#',
 				    		    
 				    		    click: function(e){
 				    		    	e.preventDefault();								
@@ -116,8 +116,8 @@
 				    		});
 					        
 					        ele.append(
-					            $('<td class="entity-ack"></td>').append(
-					            	run_link.append('<img src="{% static "isubscribe/images/redo.png" %}">'),
+					            $('<td class="rule-action"></td>').append(
+					            	run_link.append('<img src="{% static "isubscribe/images/play.png" %}">'),
 									delete_link.append('<img src="{% static "isubscribe/images/delete.png" %}">')
 								)
 					        );

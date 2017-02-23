@@ -13,7 +13,9 @@
 
 	<td class="entity-data">
 		<div id="entity-info-{{event_data.entity|entity_id}}">{{event_data.entity}}</div>
-		<!-- <span>{{event_data.output}}</span> -->
+		{% if event_data.entity|length >= 89 %}
+			<span>{{event_data.entity}}</span>
+		{% endif %}
 		<script>	
 		$( "#entity-info-{{event_data.entity|entity_id}}" ).click(function() {
 			msgBox({{event_data.timestamp|safe}}, '{{event_data.entity}}', {{event_data.status|status_int}}, {{event_data.output|safe}}, {{event_data.silent|js_bool}}, {{event_data.ack|js_bool}});
