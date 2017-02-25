@@ -536,6 +536,10 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
 	vertical-align: baseline;
 }
 
+#msgbox tr:hover {
+	color: #C74451;	
+}
+
 #msgbox td {
 	vertical-align: middle;
 	padding: 0.4em 0.5em 0 0;
@@ -561,7 +565,6 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
 
 .entity-data {
 	cursor: pointer;
-	color: #000305;
 	overflow-x: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;	
@@ -576,7 +579,6 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
 
 .entity-data p {
 	cursor: context-menu;
-	color: #000305;
 	padding: 0 0 0 0;
 	margin: 0 0 0 0;
 }
@@ -683,7 +685,6 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
 
 
 .entity-title {
-	color: #000305;	
 	padding: 0 0.4em 0 0;
 	margin: 0 0 0 0;
 	white-space: nowrap;

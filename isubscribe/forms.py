@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from isubscribe.models import ScheduledOccurrence, ScheduledEvent, Contact, Rule
 from asyncio.log import logger
 
+import re
+
 
 import logging
 logger = logging.getLogger('isubscribe.forms')
@@ -74,57 +76,16 @@ class ScheduledEventForm(ModelForm):
     
 class ContactForm(ModelForm):
     
-    id = forms.CharField(widget=forms.HiddenInput())
-    user = forms.CharField(widget=forms.HiddenInput())
-    alert_active = forms.BooleanField(widget=forms.HiddenInput())
+    slack_uid = forms.CharField(widget = forms.TextInput(attrs={'readonly':'readonly'}), required=False)
     
     class Meta:
         model = Contact
-        #fields = ['first_name', 'last_name', 'email']
-        #exclude = ['is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions', 'date_joined', 'username', 'password']
-        exclude = []
-
-    
-    def __init__(self, *args, **kwargs):
-        
-        if 'user' in kwargs:
-            self.user = kwargs.pop('user')  
-            
-        if 'update' in kwargs:
-            self.update = kwargs.pop('update')
-        else:
-            self.update = False                  
-            
-        super(ContactForm, self).__init__(*args, **kwargs)
-        
-        self.fields['user'].queryset = User.objects.filter(id=self.user.id)
-        
-        self.fields['id'].widget.attrs['readonly'] = True
-        self.fields['id'].widget.attrs['disabled'] = False        
-        self.fields['user'].widget.attrs['readonly'] = True
-        self.fields['user'].widget.attrs['disabled'] = False
-        self.fields['slack_uid'].widget.attrs['readonly'] = True
-        self.fields['slack_uid'].widget.attrs['disabled'] = True
-        
-        if (self.update == True):
-            self.fields['id'].widget.attrs['disabled'] = False     
-            self.fields['user'].widget.attrs['disabled'] = False
-            self.fields['slack_uid'].widget.attrs['disabled'] = False
-            
-           
-    def save(self, commit=True):
-        user_obj = User.objects.get(id=self.user.id)
-        user_obj.contact.email = self.data['email']
-        user_obj.contact.phone_number = self.data['phone_number']
-        user_obj.contact.save()
-        return super(ContactForm, self)
+        fields = ['slack_uid', 'email', 'phone_number']
 
 
 
 class RuleForm(ModelForm):
-    
-    #owner = forms.CharField(widget=forms.HiddenInput())
-    
+        
     class Meta:
         model = Rule
         fields = ['id', 'name', 'regex_string', 'status', 'owner']
@@ -138,13 +99,3 @@ class RuleForm(ModelForm):
         super(RuleForm, self).__init__(*args, **kwargs)
         
         self.fields['owner'].queryset = User.objects.filter(id=self.user.id)
-   
-    '''
-    def save(self, commit=True):
-        rule_obj = Rule(owner=self.user)
-        rule_obj.name = self.data['name']
-        rule_obj.regex_string = self.data['regex_string']        
-        rule_obj.status = self.data['status']
-        rule_obj.save()
-        return super(RuleForm, self)
-    '''

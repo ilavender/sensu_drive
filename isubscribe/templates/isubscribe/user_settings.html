@@ -11,7 +11,9 @@
 					<table class="paleblue">
 					{{ profile_form.as_table }}
 					</table>
+					<div id="errorMessage">
 					
+					</div>
 					<button type="button" id="modalContactButtonSettingsSave" class="btn btn-default">Save</button>
 					
 					<script>	
@@ -37,7 +39,7 @@
 					        error: function(jqXHR, textStatus, errorThrown){
 					            //alert( "Request failed: " + jqXHR.responseText );
 					            $('#contactModal .errors').remove();
-					            $('#contactModal #modalContactBody').append('<p class="errors">' + jqXHR.responseText + '</p>');      
+					            $('#contactModal #errorMessage').append('<p class="errors">' + jqXHR.responseText + '</p>');      
 					        }
 					    });
 						
