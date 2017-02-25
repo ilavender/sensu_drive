@@ -6,6 +6,7 @@
 
 <script>
  	$(document).ready( function(){
+ 		count_rules();
     	$('#posts-list').fadeIn(250);
     	$('#entity-filter').focus();
 	} );
@@ -474,6 +475,21 @@ $(function() {
         	return false;
         	
         }
+	        
+		return;
+	}
+
+</script>
+
+<script type="text/javascript">
+
+	function count_rules(){
+		var counter = 0;
+    	$("#rulesbox").find("tr").each(function(index) {
+			counter++;	            	
+		});
+
+		$('#rules_counter').text(counter);    	
 	        
 		return;
 	}
@@ -997,6 +1013,7 @@ $(function() {
 						  		$('#rule_run_{{ r.id }}').click(function(e){
 						  			e.preventDefault();
 						  			regex = '{{ r.regex_string }}';
+						  			$("#entity-filter").val(regex);
 									search(regex);
 				  			
 							    	return;
@@ -1037,6 +1054,7 @@ $(function() {
 								        
 								        success:function(data, textStatus, jqXHR){
 											$('#rule_row_{{ r.id }}').remove();
+											count_rules();
 								            return;
 								        },
 								        
@@ -1045,15 +1063,6 @@ $(function() {
 								        }
 								        
 								    });
-						  			
-									var request = $.ajax({
-										url: "{% url "entities" %}",
-									  	type: "POST",
-									  	data: {id : rule_id, csrfmiddlewaretoken: '{{ csrf_token }}'},
-									  	dataType: "json"
-									});
-									
-									
 				  			
 							    	return false;
 								});
@@ -1069,7 +1078,7 @@ $(function() {
 		
 	  <footer class="post-info">
         <abbr class="published" title="regex rules [name, regex, status]">
-          Rules:
+          Rules: <span id="rules_counter">0</span>
         </abbr>        
       </footer>
       	

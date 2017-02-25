@@ -205,7 +205,7 @@ def entities(request):
     data = {}
     user_rules = Rule.objects.filter(owner=request.user.id)    
     rule_form = RuleForm(initial={'owner': request.user}, user=request.user)
-    profile_form = ContactForm(instance=Contact.objects.get(user=request.user.id), user=request.user)
+    profile_form = ContactForm(instance=Contact.objects.get(user=request.user.id))
       
     return render(request, 'isubscribe/entities.html', {'DATA':data, 'profile_form': profile_form, 'user_rules': user_rules, 'rule_form': rule_form})
 
@@ -365,7 +365,7 @@ def events(request):
             raise
         
        
-    profile_form = ContactForm(instance=Contact.objects.get(user=request.user.id), user=request.user)
+    profile_form = ContactForm(instance=Contact.objects.get(user=request.user.id))
     
     
     return render(request, 'isubscribe/events.html', {'DATA':OrderedDict(sorted(data.items(), key=lambda x: x[1]['timestamp'], reverse=True)), 'profile_form': profile_form})
@@ -387,7 +387,7 @@ def clients(request):
         except:
             raise
     
-    profile_form = ContactForm(instance=Contact.objects.get(user=request.user.id), user=request.user)
+    profile_form = ContactForm(instance=Contact.objects.get(user=request.user.id))
     
     return render(request, 'isubscribe/clients.html', {'DATA':data, 'profile_form': profile_form})
 
@@ -408,7 +408,7 @@ def subscriptions(request):
         except:
             raise
     
-    profile_form = ContactForm(instance=Contact.objects.get(user=request.user.id), user=request.user)   
+    profile_form = ContactForm(instance=Contact.objects.get(user=request.user.id))   
     
     return render(request, 'isubscribe/subscriptions.html', {'DATA':data, 'profile_form': profile_form})
 
@@ -699,8 +699,8 @@ def user_settings(request):
     
     logger.debug('settings view triggered by %s' % (request.user.username))
     
-    form = ContactForm(request.POST, instance=Contact.objects.get(user=request.user.id), user=request.user, update=True)
-    #form = ContactForm(request.POST, user=request.user, update=True)
+    form = ContactForm(request.POST, instance=Contact.objects.get(user=request.user.id))
+
     if form.is_valid:
         try:
             form.save()
@@ -835,7 +835,7 @@ def onduty(request):
             logger.debug('********************* ' + json.dumps(form.errors))
             
     
-    profile_form = ContactForm(instance=Contact.objects.get(user=request.user.id), user=request.user)        
+    profile_form = ContactForm(instance=Contact.objects.get(user=request.user.id))        
     
     return render(request, 'isubscribe/cal.html', {'onduty_disable_alerts': onduty_disable_alerts, 'form_view': ScheduledEventForm(user=request.user, editable=False), 'form_edit': ScheduledEventForm(user=request.user, editable=True), 'profile_form': profile_form})
 
