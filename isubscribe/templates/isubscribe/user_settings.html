@@ -11,45 +11,49 @@
 					<table class="paleblue">
 					{{ profile_form.as_table }}
 					</table>
-					<div id="errorMessage">
+					<div id="errorMessageUser" class="errorMessage">
 					
 					</div>
-					<button type="button" id="modalContactButtonSettingsSave" class="btn btn-default">Save</button>
-					
-					<script>	
-					$( "#modalContactButtonSettingsSave" ).click(function(e) {
-						e.preventDefault();
-						form_id = 'settings';
-		                
-		                id = $('#' + form_id + ' input[name=id]').val();
-		                		                                     
-						//$('#' + form_id).submit();
-						var postData = $('#' + form_id).serializeArray();
-					    var formURL = $('#' + form_id).attr("action");
-					    $.ajax(
-					    {
-					        url : formURL,
-					        type: "POST",
-					        data : postData,
-					        success:function(data, textStatus, jqXHR){
-					        	$('#contactModal .errors').remove();
-					            $('#contactModal').modal('toggle');
-					            return;
-					        },
-					        error: function(jqXHR, textStatus, errorThrown){
-					            //alert( "Request failed: " + jqXHR.responseText );
-					            $('#contactModal .errors').remove();
-					            $('#contactModal #errorMessage').append('<p class="errors">' + jqXHR.responseText + '</p>');      
-					        }
-					    });
-						
-					});		
-					</script>															
+																				
 					
 				</form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <div class="modal-footer">                
+                
+                <button type="button" id="modalContactButtonSettingsSave" class="btn btn-default">Save</button>
+					
+				<script>	
+				$( "#modalContactButtonSettingsSave" ).click(function(e) {
+					e.preventDefault();
+					form_id = 'settings';
+	                
+	                id = $('#' + form_id + ' input[name=id]').val();
+	                		                                     
+					//$('#' + form_id).submit();
+					var postData = $('#' + form_id).serializeArray();
+				    var formURL = $('#' + form_id).attr("action");
+				    $.ajax(
+				    {
+				        url : formURL,
+				        type: "POST",
+				        data : postData,
+				        success:function(data, textStatus, jqXHR){
+				        	$('#contactModal .errors').remove();
+				            $('#contactModal').modal('toggle');
+				            return;
+				        },
+				        error: function(jqXHR, textStatus, errorThrown){
+				            //alert( "Request failed: " + jqXHR.responseText );
+				            $('#contactModal .errors').remove();
+				            $('#contactModal #errorMessageUser').append('<p class="errors">' + jqXHR.responseText + '</p>');      
+				        }
+				    });
+					
+				});		
+				</script>
+				
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				
             </div>
         </div>
     </div>

@@ -529,6 +529,11 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
 	color: red;
 }
 
+.errorMessage {
+	min-height: 32px;
+	color: red;
+}
+
 
 //
 

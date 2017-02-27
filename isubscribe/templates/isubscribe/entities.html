@@ -441,7 +441,7 @@ $(function() {
     	var value = regex;
 	    var loading_counter = 0;
 	    var minLength = 5;
-	    
+	    var timeout;
 	    filter_mysubscribe = $('#mysubscribe').attr("data-enabled");
         filter_silent = $('#silent').attr("data-enabled");
         
@@ -466,12 +466,11 @@ $(function() {
 			});
     		        					
         } else {
-        
         	$('#errorMessage').text('require minimum ' + minLength + ' characters');
         	if(timeout){ clearTimeout(timeout);}
         	timeout = setTimeout(function() {
         		$('#errorMessage').text('');
-			},3000);	
+			}, 3000);	
         	return false;
         	
         }
