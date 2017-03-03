@@ -226,7 +226,6 @@ def ack(message):
  
     
 # Connected to websocket.connect and websocket.keepalive
-@enforce_ordering(slight=True)
 @channel_session_user_from_http
 def websocket_connect_events(message):
     
@@ -237,13 +236,13 @@ def websocket_connect_events(message):
     message.channel_session['username'] = message.user.username    
     #message.http_session.set_expiry(3600)
 
-    logger.debug('websocket_connect_events. user: %s path: %s' % (message.user, message.content['path']))
+    logger.debug('websocket_connect_events. user: %s path: %s' % (message.user, message.content['path']))    
     Group("notifications").add(message.reply_channel)
+    message.reply_channel.send({"accept": True})
 
 
 
 # Connected to websocket.keepalive
-@enforce_ordering(slight=True)
 @channel_session_user
 def websocket_keepalive_events(message):
     
@@ -257,7 +256,6 @@ def websocket_keepalive_events(message):
 
 
 # Connected to websocket.disconnect
-@enforce_ordering(slight=True)
 @channel_session_user
 def websocket_disconnect_events(message):
     
@@ -280,6 +278,7 @@ def websocket_connect_entities(message):
     
     logger.debug('websocket_connect_entities. user = %s', message.user)
     Group("entities-private-%s" % message.user.id).add(message.reply_channel)
+    message.reply_channel.send({"accept": True})
     
     
 
@@ -319,6 +318,7 @@ def websocket_connect_onduty(message):
     
     logger.debug('websocket_connect_events. user = %s', message.user)
     Group("on-duty").add(message.reply_channel)
+    message.reply_channel.send({"accept": True})
 
 # Connected to websocket.keepalive
 @channel_session_user

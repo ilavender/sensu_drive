@@ -4,7 +4,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 
 from channels import Channel
 
@@ -31,9 +31,8 @@ def register_email(message):
     send_to = message['register_user_email']
     username = message['register_user_name']
     registration_link = message['registration_link']
-    d = Context({ 'username': username, 'registration_link': registration_link })    
     subject, from_email, to = message['subject'], message['from_email'], message['to_email']
-    text_content = register_email_plaintext.render(d)
+    text_content = register_email_plaintext.render({ 'username': username, 'registration_link': registration_link })
     html_content = register_email_htmly.render(d)
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
     msg.attach_alternative(html_content, "text/html")
@@ -67,9 +66,8 @@ class Notify:
             self.twilio_msg_prefix = 'unknown notification.'
             self.twilio_msg_postfix = 'is in status unknown!'
         
-        d = Context({ 'entity': self.entity, 'status': self.status, 'output':self.output })
         slack_alert_template     = get_template('isubscribe/slack_alert.txt')
-        self.slack_msg_content_fallback = slack_alert_template.render(d)
+        self.slack_msg_content_fallback = slack_alert_template.render({ 'entity': self.entity, 'status': self.status, 'output':self.output })
         
         
         
@@ -246,6 +244,7 @@ class Notify:
             Channel('background-notify-history').send({
                 'entity': self.entity,
                 'status': self.status,
+                'output': self.output,
                 'timestamp': datetime.datetime.now().timestamp(),
                 'user': contact['username'],
                 'user_id': user_pk,
@@ -314,6 +313,7 @@ class Notify:
             Channel('background-notify-history').send({
                 'entity': self.entity,
                 'status': self.status,
+                'output': self.output,
                 'timestamp': datetime.datetime.now().timestamp(),
                 'user': contact['username'],
                 'user_id': user_pk,

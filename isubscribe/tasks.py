@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.cache import cache
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.db.models.fields import Empty
 
 import urllib3, base64, json, random, string, re, datetime
@@ -554,8 +554,7 @@ def alert_history(message):
 
 
 def notify_history(message):    
-    logger.debug("notify_history append alert for entity: %s" % message['entity'])
-    
+    logger.debug("notify_history append alert for entity: %s" % message['entity'])    
     try:
         history_cache_key = 'notifyhistory_entity_' + message['entity'] 
         r.lpush(history_cache_key, pickle.dumps(dict(message)))

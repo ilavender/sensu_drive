@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.cache import cache
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.db.models.fields import Empty
 
 import urllib3, base64, json, random, string
