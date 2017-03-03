@@ -199,11 +199,11 @@ $(function() {
     
         var data = JSON.parse(message.data);
         
-        if (data.action_type == 'onduty_toggle_alerts'){	
-			$('.onduty_toggle_alerts').toggleClass( "hide" );			
-			return false; 
+        if (data.action_type == 'onduty_toggle_alerts'){        	
+			$('.onduty_toggle_alerts').toggleClass( "green" );
+			$('.onduty_toggle_alerts').toggleClass( "red" );			
 		}
-		
+		return false; 
     };
     
     msgsock.onclose = function(){
@@ -246,33 +246,22 @@ $(function() {
   
   {% if request.user.is_active and request.user.is_staff %}
 			    
-	{% if onduty_disable_alerts %}
-		<div class="onduty_toggle_alerts hide">
-	{% else %}
-		<div class="onduty_toggle_alerts green">
-	{% endif %}
-	<form method="post" action="{% url 'onduty' %}">
-	<input type="submit" value="on-duty alerts" data-action="onduty_disable_alerts" />
-	{% csrf_token %}
-	</form>
-	</div>
 	
 	{% if onduty_disable_alerts %}
 		<div class="onduty_toggle_alerts red">
 	{% else %}
-		<div class="onduty_toggle_alerts hide">
+		<div class="onduty_toggle_alerts green">
 	{% endif %}
-	<form method="post" action="{% url 'onduty' %}">
-	<input type="submit" value="on-duty alerts" data-action="onduty_enable_alerts" />
-	{% csrf_token %}
-	</form>					
-	</div>
+			<form method="post" action="{% url 'onduty' %}">
+			<input type="submit" value="on-duty alerts" data-action="onduty_toggle_alerts" />
+			{% csrf_token %}
+			</form>					
+		</div>
 	
 	<script>
       	$('.onduty_toggle_alerts :submit').click(function(e){
       		e.preventDefault();
 		    
-      		$('.onduty_toggle_alerts').toggleClass( "hide" );
 		    var my_action = $(this).attr("data-action");
 		    var my_csrf = $('input:hidden[name=csrfmiddlewaretoken]').attr("value");		    
 		    
@@ -283,13 +272,11 @@ $(function() {
 			});
 			
 			request.done(function(msg) {			  	
-			  	console.log('onduty_toggle_alerts triggered by me and accepted by server');
-			  	$('.onduty_toggle_alerts').toggleClass( "hide" );
+			  	console.log('onduty_toggle_alerts triggered by me and accepted by server');			  	
 			});
 			
 			request.fail(function(jqXHR, textStatus) {
 			  	alert( "Request failed: " + textStatus );
-			  	$('.onduty_toggle_alerts').toggleClass( "hide" );
 			});
   			
 	    	return false;		            

@@ -9,8 +9,7 @@ from django.contrib.auth import authenticate, login
 
 from django.contrib.auth.password_validation import validate_password, ValidationError
 
-from django.core.urlresolvers import reverse_lazy
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy 
 
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
@@ -783,17 +782,16 @@ def onduty(request):
         return JsonResponse(data, safe=False)
     
     
-    
-    
-    elif 'action' in request.POST and (request.POST['action'] == 'onduty_disable_alerts' or request.POST['action'] == 'onduty_enable_alerts'):
-        if request.POST['action'] == 'onduty_disable_alerts':
+        
+    elif 'action' in request.POST and request.POST['action'] == 'onduty_toggle_alerts':
+        if cache.get('onduty_disable_alerts'):
             logger.debug('onduty view disable onduty alerts triggered by %s' % (request.user.username))
-            cache.set('onduty_disable_alerts', True, timeout=None)
-            action_value = True
-        elif request.POST['action'] == 'onduty_enable_alerts':
-            logger.debug('onduty view enable onduty alerts triggered by %s' % (request.user.username))
             cache.set('onduty_disable_alerts', False, timeout=None)
             action_value = False
+        else:
+            logger.debug('onduty view enable onduty alerts triggered by %s' % (request.user.username))
+            cache.set('onduty_disable_alerts', True, timeout=None)
+            action_value = True
         
         Group("on-duty").send({
         "text": json.dumps({

@@ -104,7 +104,7 @@ python3-dev
 
 python3-cryptography
 
-pip install -r requirements.txt
+pip install --upgrade -r requirements.txt
 
 Slack team account (free) and token
 
