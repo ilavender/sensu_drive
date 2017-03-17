@@ -42,6 +42,11 @@ $(function() {
 			return false; 
 		}
         
+        if (data.announce){			
+			announce(data.message)
+			return false; 
+		}
+        
         loading_counter++;
         
         var entity = data.entity

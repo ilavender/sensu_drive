@@ -6,6 +6,26 @@
 
 <script>
 
+var idleTime = 0;
+
+$(document).ready(function () {
+    //Zero the idle timer on mouse movement.
+    $(this).mousemove(function (e) {
+        idleTime = 0;
+    });
+    $(this).keypress(function (e) {
+        idleTime = 0;
+    });
+});
+
+function timerIncrement() {	
+    idleTime++;
+    if (idleTime >= 60) {
+    	console.log('idle ' + idleTime + ' minutes');
+        window.location.replace("{% url 'entities' %}");
+    }
+}
+
 function eventsStatus(){
 	var rowCount = $('#msgbox tr').length;
 	
@@ -29,6 +49,8 @@ $(function() {
 	msgsock.onopen = function(){
       	console.log('connected!');
       	$('#blocker').hide();
+      	//Increment the idle time counter every minute.
+    	var idleInterval = setInterval(timerIncrement, 60000); // 1 minute
     };
     
     msgsock.onmessage = function(message) {
@@ -41,12 +63,17 @@ $(function() {
 			});
 			return false; 
 		}
+		
+		if (data.announce){			
+			announce(data.message)
+			return false; 
+		}
+		
                         
         var entity = data.entity
         entity_id = entity.replace(/:\s*/g, "_");
         entity_id = entity_id.replace(/\./g, "_");
         var date = new Date(data.timestamp * 1000);
-        //var date_string = '<time datetime="' + date.toDateString() + " " + date.toTimeString() + '">' + date.toDateString() + " " + date.toTimeString() + '</time>';
         var date_string = '<time datetime="' + data.timestamp + '">' + ts_localize(data.timestamp) + '</time>';
                 
         var ele = $('<tr id="' + entity_id + '"></tr>');

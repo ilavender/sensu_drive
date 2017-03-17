@@ -195,9 +195,14 @@ $(function() {
       	$('#blocker').hide();
     };
     
-    msgsock.onmessage = function(message) {
+    msgsock.onmessage = function(message) {       
     
         var data = JSON.parse(message.data);
+        
+        if (data.announce){			
+			announce(data.message)
+			return false; 
+		}
         
         if (data.action_type == 'onduty_toggle_alerts'){        	
 			$('.onduty_toggle_alerts').toggleClass( "green" );
