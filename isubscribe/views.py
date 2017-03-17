@@ -432,7 +432,7 @@ def ack(request):
         data['output'] = "acknowledged by %s for %s hours" % (request.user.username, request.POST['ack_interval'])
         
         if 'ack_comment' in request.POST:          
-            data['ack_comment'] = 'acknowledged by ' + request.user.username + ': ' + request.POST['ack_comment']
+            data['ack_comment'] = request.POST['ack_comment']
         
         ack_data = { 'user_id': request.user.pk, 
                     'user_name': request.user.username, 

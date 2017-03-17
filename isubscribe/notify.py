@@ -212,11 +212,7 @@ class Notify:
                 logger.debug('********* notify_onduty do notify_slack for user id: %s' % user_pk)
                 self.notify_slack(user_pk, dnd_ignore=True)
                 
-            '''
-            if self.status != 0:
-                self.twilio_params['member_id'] = user_pk
-                self.notify_twilio_call(user_pk, dnd_ignore=True)
-            '''
+            
 
 
     def notify_slack(self, user_pk, dnd_ignore=False):        

@@ -238,6 +238,7 @@ def websocket_connect_events(message):
 
     logger.debug('websocket_connect_events. user: %s path: %s' % (message.user, message.content['path']))    
     Group("notifications").add(message.reply_channel)
+    Group("announcement").add(message.reply_channel)
     message.reply_channel.send({"accept": True})
 
 
@@ -252,6 +253,7 @@ def websocket_keepalive_events(message):
     
     logger.debug('websocket_keepalive_events. message = %s', message)
     Group("notifications").add(message.reply_channel)
+    Group("announcement").add(message.reply_channel)
 
 
 
@@ -265,6 +267,7 @@ def websocket_disconnect_events(message):
     
     logger.debug('websocket_disconnect_events. message = %s', message.user)
     Group("notifications").discard(message.reply_channel)
+    Group("announcement").discard(message.reply_channel)
     
     
     
@@ -278,6 +281,7 @@ def websocket_connect_entities(message):
     
     logger.debug('websocket_connect_entities. user = %s', message.user)
     Group("entities-private-%s" % message.user.id).add(message.reply_channel)
+    Group("announcement").add(message.reply_channel)
     message.reply_channel.send({"accept": True})
     
     
@@ -292,6 +296,7 @@ def websocket_keepalive_entities(message):
     
     logger.debug('websocket_keepalive_entities. message = %s', message.user)
     Group("entities-private-%s" % message.user.id).add(message.reply_channel)
+    Group("announcement").add(message.reply_channel)
 
 
 
@@ -305,6 +310,7 @@ def websocket_disconnect_entities(message):
     
     logger.debug('websocket_disconnect_entities. message = %s', message.user)
     Group("entities-private-%s" % message.user.id).discard(message.reply_channel)
+    Group("announcement").discard(message.reply_channel)
 
 
 
@@ -318,6 +324,7 @@ def websocket_connect_onduty(message):
     
     logger.debug('websocket_connect_events. user = %s', message.user)
     Group("on-duty").add(message.reply_channel)
+    Group("announcement").add(message.reply_channel)
     message.reply_channel.send({"accept": True})
 
 # Connected to websocket.keepalive
@@ -330,6 +337,7 @@ def websocket_keepalive_onduty(message):
     
     logger.debug('websocket_keepalive_events. message = %s', message)
     Group("on-duty").add(message.reply_channel)
+    Group("announcement").add(message.reply_channel)
 
 
 # Connected to websocket.disconnect
@@ -342,5 +350,6 @@ def websocket_disconnect_onduty(message):
     
     logger.debug('websocket_disconnect_events. message = %s', message.user)
     Group("on-duty").discard(message.reply_channel)
+    Group("announcement").discard(message.reply_channel)
     
     
