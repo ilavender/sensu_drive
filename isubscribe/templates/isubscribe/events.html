@@ -20,7 +20,7 @@ $(document).ready(function () {
 
 function timerIncrement() {	
     idleTime++;
-    if (idleTime >= 60) {
+    if (idleTime >= 1440) {
     	console.log('idle ' + idleTime + ' minutes');
         window.location.replace("{% url 'entities' %}");
     }

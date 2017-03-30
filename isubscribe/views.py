@@ -431,8 +431,8 @@ def ack(request):
         data['ack'] = True
         data['output'] = "acknowledged by %s for %s hours" % (request.user.username, request.POST['ack_interval'])
         
-        if 'ack_comment' in request.POST:          
-            data['ack_comment'] = request.POST['ack_comment']
+        if 'ack_comment' in request.POST:
+            data['ack_comment'] = request.user.username + ': ' + request.POST['ack_comment']
         
         ack_data = { 'user_id': request.user.pk, 
                     'user_name': request.user.username, 
@@ -1120,12 +1120,16 @@ def rules(request):
     return HttpResponse(json.dumps(data), mimetype)
     
 
-@permission_required('is_staff', login_url=reverse_lazy('login'))
-@login_required(login_url=reverse_lazy('login'))
+#@permission_required('is_staff', login_url=reverse_lazy('login'))
+#@login_required(login_url=reverse_lazy('login'))
+@csrf_exempt
 def test(request):
     
+    for k in request.POST:
+        logger.debug("***POSTED: %s: %s" % (k, request.POST[k]))
+    
     mimetype = 'application/json'
-    data = {}
+    data = {'test': True}
     
     return HttpResponse(json.dumps(data), mimetype)
 
