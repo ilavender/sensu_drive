@@ -186,15 +186,16 @@ class Notify:
             self.twilio_params['members'] = members
             index = 0
             for member in members:
-                if member == member_id:
-                    if index > 0:
-                        previous_member = members[index - 1]
+                logger.debug('notify_onduty - twilio_retry members: %s index: %s members_length: %s' % (members, index, len(members)))
+                if int(member) == int(member_id):
                     if index < (len(members) - 1):
                         next_member = members[index + 1]
                     else:
                         next_member = members[0]
+                    break
                 elif index == (len(members) - 1):
                     next_member = members[0]
+                    break
                 index = index + 1
             logger.debug('######### notify_onduty do notify_twilio_call for next member id: %s' % next_member)                    
             self.twilio_params['member_id'] = next_member
