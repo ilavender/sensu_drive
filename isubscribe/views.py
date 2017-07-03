@@ -642,7 +642,7 @@ def twilio_say(request):
     try:
         if 'CallStatus' in request.POST:
             for k in request.POST:
-                logger.debug("***twilio_say got CallStatus in request: %s" % k)
+                logger.debug("***twilio_say got CallStatus in request %s : %s" % (k, request.POST[k]))
     except:
         pass
     
@@ -681,7 +681,11 @@ def twilio_status(request):
                 'status': request.GET['status'],
                 'output': 'twilio on duty retry'
             })
-            notifier.notify_onduty(twilio_retry=True, member_id=int(request.GET['member_id']))
+            if 'retry_count' in request.GET:
+                retry_count = int(request.GET['retry_count'])
+            else:
+                retry_count = 0
+            notifier.notify_onduty(twilio_retry=True, member_id=int(request.GET['member_id']), retry_count=retry_count)
             logger.debug("***twilio_status sent twilio_retry after failed calling %s" % (request.GET['member_id']))
     except:
         logger.error('***twilio_status failed handling notify_onduty twilio_retry')
@@ -1073,6 +1077,22 @@ def test_1(request):
     return HttpResponse(json.dumps(data), mimetype)
 
 
+#@login_required(login_url=reverse_lazy('login'))
+@ajax_login_required
+def trends(request):
+    
+    mimetype = 'application/json'
+
+    try:
+        data = cache.get('trends_all')
+    except:
+        data = []
+        pass                    
+        
+    
+    return HttpResponse(json.dumps(data), mimetype)
+
+
 @permission_required('is_staff', login_url=reverse_lazy('login'))
 @login_required(login_url=reverse_lazy('login'))
 def mySubscribe(request):
@@ -1134,18 +1154,5 @@ def test(request):
     return HttpResponse(json.dumps(data), mimetype)
 
 
-#@login_required(login_url=reverse_lazy('login'))
-@ajax_login_required
-def trends(request):
-    
-    mimetype = 'application/json'
 
-    try:
-        data = cache.get('trends_all')
-    except:
-        data = []
-        pass                    
-        
-    
-    return HttpResponse(json.dumps(data), mimetype)
 

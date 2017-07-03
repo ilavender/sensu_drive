@@ -173,7 +173,7 @@ class Notify:
 
 
 
-    def notify_onduty(self, twilio_retry=False, member_id=None, ack=False):
+    def notify_onduty(self, twilio_retry=False, retry_count=0, member_id=None, ack=False):
         
         if 'onduty_disable_alerts' in cache.keys("onduty_disable_*"):
             if cache.get('onduty_disable_alerts'):
@@ -182,24 +182,35 @@ class Notify:
         
         if twilio_retry:
             logger.debug('notify_onduty - this is a twilio_retry for member_id: %s' % member_id)
-            members = self.onduty_members()
+            if int(retry_count) > 0:
+                self.twilio_params['retry_count'] = int(retry_count)
+            else:
+                self.twilio_params['retry_count'] = 0
+            self.twilio_params['retry_count'] += 1
+            members = self.onduty_members()           
             self.twilio_params['members'] = members
-            index = 0
-            for member in members:
-                logger.debug('notify_onduty - twilio_retry members: %s index: %s members_length: %s' % (members, index, len(members)))
-                if int(member) == int(member_id):
-                    if index < (len(members) - 1):
-                        next_member = members[index + 1]
-                    else:
+            self.twilio_params['member_id'] = int(member_id)
+            if self.twilio_params['retry_count'] > settings.ON_DUTY_TWILIO_RETRY:
+                self.twilio_params['retry_count'] = 0
+                index = 0
+                for member in members:
+                    logger.debug('notify_onduty - twilio_retry members: %s index: %s members_length: %s' % (members, index, len(members)))
+                    if int(member) == int(member_id):
+                        if index < (len(members) - 1):
+                            next_member = members[index + 1]
+                        else:
+                            next_member = members[0]
+                        break
+                    elif index == (len(members) - 1):
                         next_member = members[0]
-                    break
-                elif index == (len(members) - 1):
-                    next_member = members[0]
-                    break
-                index = index + 1
-            logger.debug('######### notify_onduty do notify_twilio_call for next member id: %s' % next_member)                    
-            self.twilio_params['member_id'] = next_member
-            self.notify_twilio_call(next_member, dnd_ignore=True, on_duty=True, onduty_retry=True)
+                        break
+                    index += 1                                                    
+                self.twilio_params['member_id'] = next_member
+                logger.debug('######### notify_onduty retry notify_twilio_call for next member id: %s' % self.twilio_params['member_id'])
+            else:
+                logger.debug('######### notify_onduty retry notify_twilio_call for member id: %s retry: %s' % (self.twilio_params['member_id'], self.twilio_params['retry_count']))
+                
+            self.notify_twilio_call(self.twilio_params['member_id'], dnd_ignore=True, on_duty=True, onduty_retry=True)
         else:            
             members = self.onduty_members()
             logger.debug('notify_onduty - this is a normal call for notify_twilio_call members: %s' % members)
