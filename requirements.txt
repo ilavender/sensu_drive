@@ -16,7 +16,7 @@ constantly==15.1.0
 cryptography==1.5.2
 daphne==1.0.3
 Django==1.11.20
-django-debug-toolbar==1.6
+django-debug-toolbar==1.11.1
 django-eventtools==0.9.10
 django-multiselectfield==0.1.5
 django-redis==4.6.0
