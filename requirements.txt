@@ -56,5 +56,5 @@ tornado==4.4.2
 twilio==5.6.0
 Twisted==17.1.0
 txaio==2.6.1
-urllib3==1.23
+urllib3==1.26.5
 zope.interface==4.3.3
