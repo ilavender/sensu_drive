@@ -54,7 +54,7 @@ tomako==0.1.0.post1
 TornadIO2==0.0.3
 tornado==4.4.2
 twilio==5.6.0
-Twisted==17.1.0
+Twisted==22.2.0
 txaio==2.6.1
 urllib3==1.23
 zope.interface==4.3.3
