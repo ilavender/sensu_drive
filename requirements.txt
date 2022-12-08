@@ -6,7 +6,7 @@ attrs==16.3.0
 autobahn==0.17.2
 Automat==0.5.0
 backports-abc==0.5
-certifi==2019.3.9
+certifi==2022.12.7
 cffi==1.8.3
 channels==1.0.3
 chardet==3.0.4
